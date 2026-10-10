@@ -208,6 +208,8 @@ figure {
 }
 
 .countdown__grid {
+  /* כמו שעון: ימים משמאל, שניות מימין */
+  direction: ltr;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
