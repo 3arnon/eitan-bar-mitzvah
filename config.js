@@ -52,6 +52,6 @@ window.EVENT = {
   // תאריך אחרון לאישור הגעה (שנה-חודש-יום). ריק = לא מוצג.
   rsvpDeadline: "",
 
-  // כתובת שירות אישורי ההגעה (Google Apps Script). מתמלאת בשלב החיבור ל-Google Sheets.
-  rsvpUrl: ""
+  // כתובת שירות אישורי ההגעה (Google Apps Script). אם פורסים מחדש ב-Google ומתקבלת כתובת חדשה, מעדכנים כאן.
+  rsvpUrl: "https://script.google.com/macros/s/AKfycbyNnTPXB0d7fGf57yOSbZECKCpsRtZC8tMmxH2itIEy0XglhNyCV0u9sK4rd8J8y_xm-Q/exec"
 };
