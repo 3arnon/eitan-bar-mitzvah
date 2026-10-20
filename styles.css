@@ -113,6 +113,8 @@ figure {
 
 .panel__frame {
   position: relative;
+  /* התוכן תמיד מעל כתמי הצבע, גם בדפדפנים שמציירים את הפילטר אחרת */
+  z-index: 1;
   padding: 44px 20px 36px;
   border: 1px solid var(--gold);
 }
@@ -132,12 +134,14 @@ figure {
   height: 250px;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(28, 70, 128, 0.92) 0%, rgba(52, 96, 146, 0.76) 42%, rgba(88, 130, 174, 0.42) 68%, rgba(88, 130, 174, 0) 100%);
+  z-index: 0;
   filter: url(#wash);
   pointer-events: none;
 }
 
+/* גבוה מספיק כדי שהכתם (כולל הפיזור של הפילטר) לא יגיע לתיבות הספירה לאחור */
 .wash--top {
-  top: -150px;
+  top: -175px;
   inset-inline-end: -150px;
 }
 

@@ -31,9 +31,9 @@ window.EVENT = {
       id: "synagogue",
       icon: "torah",
       title: "עלייה לתורה",
-      place: "בית הכנסת בגני יוחנן",
-      address: "",
-      navQuery: "בית הכנסת גני יוחנן",
+      place: "בית הכנסת במושב ביצרון",
+      address: "העקרונים 50, מושב ביצרון",
+      navQuery: "העקרונים 50 ביצרון",
       start: "09:30",
       end: "11:30"
     },
