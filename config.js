@@ -34,8 +34,8 @@ window.EVENT = {
       place: "בית הכנסת במושב ביצרון",
       address: "",
       navQuery: "העקרונים 50 ביצרון",
-      start: "09:30",
-      end: "11:30"
+      start: "10:30",
+      end: "12:00"
     },
     {
       id: "event",
