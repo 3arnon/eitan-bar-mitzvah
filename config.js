@@ -32,7 +32,7 @@ window.EVENT = {
       icon: "torah",
       title: "עלייה לתורה",
       place: "בית הכנסת במושב ביצרון",
-      address: "העקרונים 50, מושב ביצרון",
+      address: "",
       navQuery: "העקרונים 50 ביצרון",
       start: "09:30",
       end: "11:30"
