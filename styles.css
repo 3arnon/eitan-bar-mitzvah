@@ -26,6 +26,8 @@
 }
 
 html {
+  /* בלי זה, כרום בתחתית הדף "גולל עם" השדות שנפתחים בטופס, והכפתור שנלחץ בורח מהמסך */
+  overflow-anchor: none;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
