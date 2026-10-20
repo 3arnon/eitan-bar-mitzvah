@@ -129,27 +129,29 @@ figure {
   pointer-events: none;
 }
 
-/* כתמי צבעי מים כחולים בפינות */
+/*
+ * כתמי צבעי מים כחולים בפינות.
+ * הכתם מצויר מראש לתמונה. פילטר SVG חי גרם לכרום להשאיר "שאריות" של תמונת ההזמנה מעל הספירה לאחור בזמן גלילה.
+ * התמונה כוללת שוליים של 75 פיקסלים סביב הכתם עצמו, ולכן המיקומים מוזזים ב-75.
+ */
 .wash {
   position: absolute;
-  width: 250px;
-  height: 250px;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(28, 70, 128, 0.92) 0%, rgba(52, 96, 146, 0.76) 42%, rgba(88, 130, 174, 0.42) 68%, rgba(88, 130, 174, 0) 100%);
   z-index: 0;
-  filter: url(#wash);
+  width: 400px;
+  height: 400px;
+  background: url("images/wash.webp") center / 100% 100% no-repeat;
   pointer-events: none;
 }
 
-/* גבוה מספיק כדי שהכתם (כולל הפיזור של הפילטר) לא יגיע לתיבות הספירה לאחור */
+/* גבוה מספיק כדי שהכתם לא יגיע לתיבות הספירה לאחור */
 .wash--top {
-  top: -175px;
-  inset-inline-end: -150px;
+  top: -250px;
+  inset-inline-end: -225px;
 }
 
 .wash--bottom {
-  bottom: -140px;
-  inset-inline-start: -140px;
+  bottom: -215px;
+  inset-inline-start: -215px;
 }
 
 /* ---------- כותרות ועיטורים ---------- */

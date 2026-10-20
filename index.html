@@ -26,12 +26,6 @@
 <body>
   <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
-      <filter id="wash" x="-30%" y="-30%" width="160%" height="160%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="4" seed="11" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="80" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-        <feGaussianBlur in="rough" stdDeviation="1.4"/>
-      </filter>
-
       <symbol id="divider" viewBox="0 0 240 24">
         <line x1="0" y1="12" x2="94" y2="12"/>
         <circle fill="currentColor" stroke="none" cx="100" cy="12" r="1.6"/>
