@@ -286,6 +286,95 @@
     });
   }
 
+  /* ---------- כרטיס כניסה וקונפטי אחרי אישור הגעה ---------- */
+
+  function renderPass(data) {
+    $("pass-event").textContent = "בר המצווה של " + E.childName;
+    $("pass-date").textContent = shortDate(E.date) + " · " + E.hebrewDate;
+    $("pass-guest").textContent = data.name;
+    $("pass-count").textContent = "מספר אורחים: " + data.count;
+
+    var list = $("pass-stops");
+    list.textContent = "";
+    E.stops.forEach(function (stop) {
+      if (data.part !== "both" && data.part !== stop.id) return;
+      var li = el("li", "pass__stop");
+      li.appendChild(el("span", "pass__time", shortTime(stop.start)));
+      var what = el("span", "pass__what");
+      what.appendChild(el("strong", null, stop.title));
+      what.appendChild(el("span", null, stop.place));
+      li.appendChild(what);
+      list.appendChild(li);
+    });
+  }
+
+  function confetti(origin) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    var canvas = el("canvas", "confetti");
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    var colors = ["#b17d27", "#d6bd8b", "#0f2147", "#3f6488", "#e9d3a1"];
+    var box = origin.getBoundingClientRect();
+    var cx = box.left + box.width / 2;
+    var cy = Math.max(60, Math.min(h * 0.5, box.top + 60));
+    var pieces = [];
+    for (var i = 0; i < 160; i++) {
+      var angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.1;
+      var speed = 7 + Math.random() * 9;
+      pieces.push({
+        x: cx + (Math.random() - 0.5) * 40,
+        y: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 5 + Math.random() * 6,
+        rot: Math.random() * Math.PI,
+        spin: (Math.random() - 0.5) * 0.3,
+        round: Math.random() < 0.25,
+        color: colors[i % colors.length]
+      });
+    }
+
+    var start = performance.now();
+    var DURATION = 3200;
+    function frame(now) {
+      var t = now - start;
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalAlpha = t > DURATION - 700 ? Math.max(0, (DURATION - t) / 700) : 1;
+      pieces.forEach(function (p) {
+        p.vx *= 0.985;
+        p.vy = p.vy * 0.985 + 0.32;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.spin;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.round) {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2.4, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // סיבוב בציר אחד נותן לפיסה מראה של נייר שמתהפך באוויר
+          ctx.fillRect(-p.size / 2, -p.size / 4 * Math.abs(Math.cos(p.rot * 2)) - 1, p.size, p.size / 2 * Math.abs(Math.cos(p.rot * 2)) + 2);
+        }
+        ctx.restore();
+      });
+      if (t < DURATION) requestAnimationFrame(frame);
+      else canvas.remove();
+    }
+    requestAnimationFrame(frame);
+  }
+
   /* ---------- אישור הגעה ---------- */
 
   function setupRsvp() {
@@ -424,13 +513,21 @@
       setStatus("", false);
 
       send(data).then(function () {
-        $("thanks-title").textContent = data.attending === "yes" ? "תודה, נתראה!" : "תודה שעדכנתם";
-        $("thanks-text").textContent = data.attending === "yes"
-          ? "רשמנו את הגעתכם. כדאי להוסיף את האירוע ליומן מהקישורים שלמעלה."
+        var coming = data.attending === "yes";
+        $("thanks-title").textContent = coming ? "נרשמתם בהצלחה!" : "תודה שעדכנתם";
+        $("thanks-text").textContent = coming
+          ? "מחכים לראותכם. כדאי להוסיף את האירוע ליומן מהקישורים שלמעלה."
           : "חבל שלא תוכלו להגיע. נשמח לחגוג איתכם בהזדמנות אחרת.";
+        // ל-svg אין מאפיין hidden כמו לאלמנט HTML, לכן משנים את התכונה עצמה
+        $("thanks-check").toggleAttribute("hidden", !coming);
+        $("pass").hidden = !coming;
+        $("thanks-hint").hidden = !coming;
+        if (coming) renderPass(data);
         form.hidden = true;
         thanks.hidden = false;
-        thanks.focus();
+        thanks.focus({ preventScroll: true });
+        thanks.scrollIntoView({ block: "start" });
+        if (coming) confetti(thanks);
       }).catch(function () {
         setStatus("לא הצלחנו לשמור את התשובה. בדקו את החיבור לאינטרנט ונסו שוב.", true);
       }).finally(function () {

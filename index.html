@@ -191,8 +191,28 @@
           </form>
 
           <div class="thanks" id="rsvp-thanks" tabindex="-1" hidden>
+            <svg class="thanks__check" id="thanks-check" viewBox="0 0 48 48" aria-hidden="true" hidden>
+              <circle cx="24" cy="24" r="22"/>
+              <path d="M14 24.5l7 7 13-14"/>
+            </svg>
             <h3 class="thanks__title" id="thanks-title"></h3>
             <p id="thanks-text"></p>
+
+            <div class="pass" id="pass" hidden>
+              <div class="pass__head">
+                <p class="pass__kicker">כרטיס כניסה</p>
+                <p class="pass__event" id="pass-event"></p>
+                <p class="pass__date" id="pass-date"></p>
+              </div>
+              <div class="pass__tear" aria-hidden="true"></div>
+              <div class="pass__body">
+                <p class="pass__guest" id="pass-guest"></p>
+                <p class="pass__count" id="pass-count"></p>
+                <ul class="pass__stops" id="pass-stops"></ul>
+              </div>
+            </div>
+            <p class="thanks__hint" id="thanks-hint" hidden>אפשר לצלם את המסך ולשמור את הכרטיס</p>
+
             <button type="button" class="link-btn" id="rsvp-again">שליחת תשובה נוספת</button>
           </div>
         </section>
