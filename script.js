@@ -375,6 +375,166 @@
     requestAnimationFrame(frame);
   }
 
+  /* ---------- מעטפת פתיחה ---------- */
+
+  var INTRO_HOLD_MS = 1500; // כמה זמן המעטפה סגורה לפני שהחותמת נשברת
+  var CARD_OUT_MS = 1500;   // שבירה, דש והזמנה יוצאת (לפי ההשהיות ב-styles.css)
+  var FLY_MS = 1000;        // ההזמנה באה קדימה, למקום שלה בראש הדף
+  var CARD_TUCK_PX = 10;    // כשההזמנה בחוץ, התחתית שלה עדיין נוגעת בשפת המעטפה
+
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  // אבקת זהב שמתפזרת מהחותמת כשהיא נשברת
+  function goldDust(origin) {
+    var canvas = el("canvas", "gold-dust");
+    canvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(canvas);
+    var ctx = canvas.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    var colors = ["#f6dc95", "#d6bd8b", "#b17d27", "#fff4cf"];
+    var box = origin.getBoundingClientRect();
+    var cx = box.left + box.width / 2;
+    var cy = box.top + box.height / 2;
+    var specks = [];
+    for (var i = 0; i < 90; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      var speed = 1.5 + Math.random() * 6;
+      specks.push({
+        x: cx + Math.cos(angle) * box.width * 0.2,
+        y: cy + Math.sin(angle) * box.width * 0.2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1.2,
+        r: 0.7 + Math.random() * 1.9,
+        life: 800 + Math.random() * 700,
+        phase: Math.random() * 6,
+        color: colors[i % colors.length]
+      });
+    }
+
+    var start = performance.now();
+    function frame(now) {
+      var t = now - start;
+      var alive = false;
+      ctx.clearRect(0, 0, w, h);
+      specks.forEach(function (p) {
+        if (t > p.life) return;
+        alive = true;
+        p.vx *= 0.95;
+        p.vy = p.vy * 0.95 + 0.07;
+        p.x += p.vx;
+        p.y += p.vy;
+        // נצנוץ: כל גרגר מהבהב בקצב משלו ודועך לקראת הסוף
+        ctx.globalAlpha = (1 - t / p.life) * (0.55 + 0.45 * Math.sin(t / 45 + p.phase));
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      if (alive) requestAnimationFrame(frame);
+      else canvas.remove();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function playIntro() {
+    var root = document.documentElement;
+    var intro = $("intro");
+    if (!root.classList.contains("intro-on")) {
+      intro.remove();
+      return;
+    }
+
+    var card = $("intro-card");
+    var sheet = document.querySelector(".sheet");
+    var opened = false;
+    sheet.inert = true;
+    $("envelope-text").textContent = E.envelopeText || "";
+    if (card.getAttribute("src") !== E.invitationImage) card.src = E.invitationImage;
+
+    // לא פותחים לפני שתמונת ההזמנה נטענה, אבל גם לא מחכים לה לנצח
+    var cardReady = Promise.race([
+      card.decode ? card.decode().catch(function () {}) : Promise.resolve(),
+      wait(3000)
+    ]);
+
+    function finish() {
+      root.classList.remove("intro-on");
+      sheet.inert = false;
+      intro.remove();
+      try {
+        localStorage.setItem("envelope-opened", "1");
+      } catch (e) {}
+    }
+
+    var envelope = card.parentNode;
+    var envDown = 0;
+
+    // כמה ההזמנה עולה וכמה המעטפה יורדת, כך ששתיהן נכנסות במסך (ובמסך נמוך, המעטפה גולשת למטה)
+    function setPull() {
+      var cardTop = envelope.offsetTop + card.offsetTop;
+      var total = card.offsetHeight + envelope.offsetHeight - CARD_TUCK_PX;
+      var top = Math.max(16, (window.innerHeight - total) / 2);
+      envDown = top + card.offsetHeight - CARD_TUCK_PX - envelope.offsetTop;
+      envelope.style.setProperty("--env-down", envDown + "px");
+      card.style.setProperty("--card-up", (top - cardTop - envDown) + "px");
+    }
+
+    // ההזמנה באה קדימה וגדלה עד שהיא יושבת בדיוק על התמונה שבראש הדף
+    function fly() {
+      var hero = $("invitation").getBoundingClientRect();
+      var from = card.getBoundingClientRect();
+      var env = envelope.getBoundingClientRect();
+      var shadow = getComputedStyle(card).boxShadow;
+
+      // ההזמנה עוברת לשכבה משלה מעל המעטפה, באותו מקום בדיוק
+      intro.appendChild(card);
+      card.style.cssText = "top:" + from.top + "px; left:" + from.left + "px; width:" + from.width + "px;" +
+        "transform:none; transition:none; z-index:10";
+
+      // המעטפה מתכווצת אל מרכז המקום שבו ההזמנה תנחת, כך שהיא נעלמת מאחוריה
+      var dy = (hero.top + hero.height / 2) - (env.top + env.height / 2);
+      envelope.style.setProperty("--env-leave", envDown + dy + "px");
+      intro.classList.add("is-leaving");
+
+      if (!card.animate) {
+        finish();
+        return;
+      }
+      // הצל מתעבה באמצע הדרך, כאילו ההזמנה מתקרבת אל המסתכל
+      card.animate([
+        { transform: "none", boxShadow: shadow },
+        { boxShadow: "0 30px 50px -18px rgba(8, 21, 48, 0.55)", offset: 0.5 },
+        {
+          transform: "translate(" + (hero.left - from.left) + "px, " + (hero.top - from.top) + "px) scale(" + hero.width / from.width + ")",
+          boxShadow: "0 0 0 0 rgba(8, 21, 48, 0)",
+          borderRadius: "0"
+        }
+      ], { duration: FLY_MS, easing: "cubic-bezier(0.45, 0, 0.2, 1)", fill: "forwards" }).onfinish = finish;
+    }
+
+    function open() {
+      if (opened) return;
+      opened = true;
+      setPull();
+      intro.classList.add("is-open");
+      goldDust($("seal"));
+      setTimeout(fly, CARD_OUT_MS);
+    }
+
+    Promise.all([cardReady, wait(INTRO_HOLD_MS)]).then(open);
+    intro.addEventListener("click", function () {
+      cardReady.then(open);
+    });
+  }
+
   /* ---------- אישור הגעה ---------- */
 
   function setupRsvp() {
@@ -522,6 +682,8 @@
         $("thanks-check").toggleAttribute("hidden", !coming);
         $("pass").hidden = !coming;
         $("thanks-hint").hidden = !coming;
+        // זורקים סוכריות רק בעלייה לתורה, ולכן רק מי שמגיע אליה רואה את התזכורת
+        $("candy").hidden = !coming || data.part === "event";
         if (coming) renderPass(data);
         form.hidden = true;
         thanks.hidden = false;
@@ -547,6 +709,14 @@
   }
 
   /* ---------- הפעלה ---------- */
+
+  // המעטפה ראשונה, ואם משהו בה נכשל מדלגים עליה ישר להזמנה
+  try {
+    playIntro();
+  } catch (e) {
+    document.documentElement.classList.remove("intro-on");
+    document.querySelector(".sheet").inert = false;
+  }
 
   var problems = configProblems();
   if (problems.length) {

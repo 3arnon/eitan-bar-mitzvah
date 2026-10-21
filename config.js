@@ -14,6 +14,9 @@ window.EVENT = {
   invitationImage: "images/invitation.jpg",
   photo: "",
 
+  // הכיתוב על המעטפה שנפתחת בכניסה הראשונה לדף.
+  envelopeText: "נחתם 2013 · נפתח 2026",
+
   // נוסח ההזמנה המקורית. השורה האחרונה מודגשת.
   blessing: [
     "אנו שמחים ונרגשים להזמינכם",

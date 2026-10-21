@@ -22,6 +22,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // המעטפה מוצגת רק בכניסה הראשונה (או עם ?intro בכתובת), ולא למי שביקש בטלפון פחות תנועה
+    try {
+      if (/[?&]intro\b/.test(location.search) ||
+          (!location.hash && !localStorage.getItem("envelope-opened") &&
+           !matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+        document.documentElement.classList.add("intro-on");
+        // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
+        setTimeout(function () {
+          document.documentElement.classList.remove("intro-on");
+        }, 10000);
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
@@ -38,6 +52,48 @@
         </g>
         <circle fill="currentColor" stroke="none" cx="140" cy="12" r="1.6"/>
         <line x1="146" y1="12" x2="240" y2="12"/>
+      </symbol>
+
+      <!-- סוכריה עטופה. הצבע נקבע מבחוץ (currentColor) -->
+      <symbol id="icon-candy" viewBox="0 0 64 32">
+        <path fill="currentColor" opacity="0.8" d="M15 16 L3 5 Q0 16 3 27 Z M49 16 L61 5 Q64 16 61 27 Z"/>
+        <path fill="none" stroke="#000" stroke-opacity="0.18" stroke-width="1" stroke-linecap="round" d="M6 9 L13 15.5 M6 23 L13 16.5 M58 9 L51 15.5 M58 23 L51 16.5"/>
+        <ellipse fill="currentColor" cx="32" cy="16" rx="19" ry="12"/>
+        <path fill="none" stroke="#fff" stroke-opacity="0.45" stroke-width="2.4" stroke-linecap="round" d="M22 7 Q28 16 22 25 M32 4.5 Q38 16 32 27.5 M42 7 Q48 16 42 25"/>
+        <ellipse fill="#fff" fill-opacity="0.35" cx="25" cy="10" rx="6" ry="2.6" transform="rotate(-14 25 10)"/>
+      </symbol>
+
+      <!-- חותמת שעווה עם הדיוקן של איתן. הדיוקן שקוע בשעווה: צל בצד העליון ואור בצד התחתון -->
+      <radialGradient id="wax" cx="38%" cy="32%" r="75%">
+        <stop offset="0" stop-color="#c94a3f"/>
+        <stop offset="0.45" stop-color="#9c2321"/>
+        <stop offset="1" stop-color="#5a0c0e"/>
+      </radialGradient>
+      <radialGradient id="wax-pressed" cx="42%" cy="38%" r="70%">
+        <stop offset="0" stop-color="#a42a26"/>
+        <stop offset="1" stop-color="#7a1517"/>
+      </radialGradient>
+      <linearGradient id="envelope-paper" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f6eee0"/>
+        <stop offset="1" stop-color="#e8d8bb"/>
+      </linearGradient>
+      <radialGradient id="wax-gloss" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+
+      <symbol id="seal-art" viewBox="0 0 120 120">
+        <path fill="url(#wax)" d="M60.0 13.8 C65.8 13.8 71.8 15.9 77.4 18.0 C83.0 20.1 89.7 22.2 93.7 26.3 C97.8 30.4 99.4 37.1 101.7 42.7 C103.9 48.4 106.3 53.9 107.2 60.0 C108.0 66.1 109.6 74.2 107.0 79.5 C104.5 84.8 96.7 87.9 91.9 91.9 C87.0 95.9 83.3 101.3 78.0 103.5 C72.7 105.6 66.0 105.0 60.0 105.0 C54.0 104.9 47.4 105.3 42.1 103.2 C36.8 101.0 32.8 95.9 28.1 91.9 C23.4 87.9 16.5 84.3 14.1 79.0 C11.6 73.7 13.1 66.3 13.3 60.0 C13.5 53.7 12.8 46.8 15.2 41.5 C17.7 36.1 23.4 31.9 27.9 27.9 C32.5 24.0 37.1 20.1 42.5 17.7 C47.8 15.3 54.2 13.7 60.0 13.8Z"/>
+        <circle cx="60" cy="60" r="36" fill="url(#wax-pressed)"/>
+        <circle cx="59.2" cy="59.2" r="36" fill="none" stroke="#4d080a" stroke-width="2.2" stroke-opacity="0.8"/>
+        <circle cx="60.8" cy="60.8" r="36" fill="none" stroke="#f0a090" stroke-width="1.1" stroke-opacity="0.45"/>
+        <circle cx="60" cy="60" r="31" fill="none" stroke="#5c0b0d" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 4.06"/>
+        <!-- הדיוקן של איתן, צבוע מראש בגווני שעווה (images/eitan-seal.png) -->
+        <circle cx="60" cy="60" r="29.6" fill="#5a0b0d"/>
+        <image href="images/eitan-seal.png" x="31" y="31" width="58" height="58"/>
+        <circle cx="59.4" cy="59.4" r="29" fill="none" stroke="#4a0709" stroke-width="1.4" stroke-opacity="0.7"/>
+        <circle cx="60.6" cy="60.6" r="29" fill="none" stroke="#f0a090" stroke-width="0.8" stroke-opacity="0.4"/>
+        <ellipse cx="42" cy="34" rx="15" ry="7" fill="url(#wax-gloss)" transform="rotate(-32 42 34)"/>
       </symbol>
 
       <symbol id="flourish" viewBox="0 0 240 28">
@@ -73,6 +129,33 @@
       </symbol>
     </defs>
   </svg>
+
+  <!-- מעטפה שנפתחת לפני ההזמנה. נגיעה בה פותחת מיד -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <span class="wash intro__wash intro__wash--top"></span>
+    <span class="wash intro__wash intro__wash--bottom"></span>
+
+    <div class="envelope">
+      <div class="envelope__back"></div>
+      <img class="envelope__card" id="intro-card" src="images/invitation.jpg" width="1024" height="1536" alt="">
+      <svg class="envelope__pocket" viewBox="0 0 100 140" preserveAspectRatio="none">
+        <path class="envelope__paper" d="M0 0 L50 61 L100 0 V140 H0 Z"/>
+      </svg>
+      <div class="envelope__text">
+        <p id="envelope-text"></p>
+        <svg class="divider" aria-hidden="true"><use href="#divider"/></svg>
+      </div>
+      <div class="envelope__shade"></div>
+      <div class="envelope__flap">
+        <span class="envelope__face envelope__face--front"></span>
+        <span class="envelope__face envelope__face--back"></span>
+      </div>
+      <div class="seal" id="seal">
+        <svg class="seal__half seal__half--a" viewBox="0 0 120 120"><use href="#seal-art"/></svg>
+        <svg class="seal__half seal__half--b" viewBox="0 0 120 120"><use href="#seal-art"/></svg>
+      </div>
+    </div>
+  </div>
 
   <div class="draft-ribbon" id="draft-ribbon" hidden></div>
 
@@ -206,6 +289,16 @@
               </div>
             </div>
             <p class="thanks__hint" id="thanks-hint" hidden>אפשר לצלם את המסך ולשמור את הכרטיס</p>
+
+            <div class="candy" id="candy" hidden>
+              <div class="candy__art" aria-hidden="true">
+                <svg class="candy__piece candy__piece--blue"><use href="#icon-candy"/></svg>
+                <svg class="candy__piece candy__piece--gold"><use href="#icon-candy"/></svg>
+                <svg class="candy__piece candy__piece--navy"><use href="#icon-candy"/></svg>
+              </div>
+              <p class="candy__title">תכינו את הסוכריות!</p>
+              <p class="candy__text">לזריקה על איתן בעלייה לתורה. עדיף סוכריות רכות ועטופות.</p>
+            </div>
 
             <button type="button" class="link-btn" id="rsvp-again">שליחת תשובה נוספת</button>
           </div>

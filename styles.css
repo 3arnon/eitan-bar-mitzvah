@@ -801,6 +801,74 @@ textarea.input {
   font-size: 0.95rem;
 }
 
+/* ---------- סוכריות (למי שמגיע לעלייה לתורה) ---------- */
+
+.candy {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px dashed var(--gold-soft);
+}
+
+.candy__art {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  height: 52px;
+}
+
+.candy__piece {
+  width: 70px;
+  height: 35px;
+  filter: drop-shadow(0 4px 3px rgba(8, 21, 48, 0.18));
+  /* כל סוכריה נופלת בתורה ונוחתת בזווית משלה */
+  animation: candy-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+
+.candy__piece--blue {
+  --tilt: -16deg;
+  color: var(--wash);
+  animation-delay: 0.9s;
+}
+
+.candy__piece--gold {
+  --tilt: 8deg;
+  margin-bottom: 14px;
+  color: var(--gold);
+  animation-delay: 1.05s;
+}
+
+.candy__piece--navy {
+  --tilt: -5deg;
+  color: var(--navy);
+  animation-delay: 1.2s;
+}
+
+.candy__title {
+  margin-top: 10px;
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.candy__text {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+@keyframes candy-drop {
+  from {
+    transform: translateY(-40px) rotate(calc(var(--tilt) - 50deg));
+    opacity: 0;
+  }
+
+  to {
+    transform: rotate(var(--tilt));
+  }
+}
+
 .confetti {
   position: fixed;
   inset: 0;
@@ -842,6 +910,290 @@ textarea.input {
   font-size: 1.9rem;
   font-weight: 900;
   line-height: 1.3;
+}
+
+/*
+ * ---------- מעטפת פתיחה ----------
+ * הסדר אחרי הוספת is-open: החותמת נשברת (0), הדש נפתח (0.2 שנ'), ההזמנה יוצאת (0.5 עד 1.45 שנ').
+ * אחר כך script.js מביא את ההזמנה קדימה, למקום שלה בראש הדף. אם משנים זמנים כאן, לעדכן גם את CARD_OUT_MS שם.
+ */
+
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: none;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.intro-on .intro {
+  display: block;
+}
+
+.intro-on body {
+  overflow: hidden;
+}
+
+/* ההזמנה שיוצאת מהמעטפה נוחתת בדיוק כאן, ורק אז התמונה האמיתית מוצגת */
+.intro-on .hero__invitation {
+  visibility: hidden;
+}
+
+.intro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.45 0 0 0 0 0.28 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 45%, var(--paper), var(--cream) 55%, var(--backdrop));
+  transition: opacity 0.8s ease 0.1s;
+}
+
+.intro__wash {
+  transition: opacity 0.6s;
+}
+
+.intro__wash--top {
+  top: -170px;
+  right: -180px;
+}
+
+.intro__wash--bottom {
+  bottom: -170px;
+  left: -180px;
+}
+
+.intro.is-leaving::before,
+.intro.is-leaving .intro__wash {
+  opacity: 0;
+}
+
+.envelope {
+  --w: min(78vw, 330px, 54vh);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--w);
+  height: calc(var(--w) * 1.4);
+  /* קצת מתחת למרכז, כדי שיהיה מקום להזמנה לעלות */
+  margin: calc(var(--w) * -0.58) 0 0 calc(var(--w) * -0.5);
+  animation: envelope-in 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* בטנה כחולה עם רשת זהב דקה, בפנים המעטפה ובצד הפנימי של הדש */
+.envelope__back,
+.envelope__face--back {
+  background:
+    repeating-linear-gradient(45deg, rgba(214, 189, 139, 0.14) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(-45deg, rgba(214, 189, 139, 0.14) 0 1px, transparent 1px 11px),
+    radial-gradient(circle at 50% 30%, #1b3466, var(--navy));
+}
+
+.envelope__back {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 5px;
+  box-shadow: 0 34px 50px -26px rgba(8, 21, 48, 0.6), 0 2px 6px rgba(8, 21, 48, 0.18);
+}
+
+.envelope__card {
+  position: absolute;
+  z-index: 2;
+  top: 4%;
+  left: 6%;
+  width: 88%;
+  height: auto;
+  border-radius: 2px;
+  box-shadow: 0 8px 20px -8px rgba(8, 21, 48, 0.55);
+  transform-origin: 0 0;
+  transition: transform 0.95s cubic-bezier(0.45, 0, 0.25, 1) 0.5s;
+}
+
+/*
+ * ההזמנה יוצאת עד הסוף והמעטפה יורדת קצת, כמו שתי ידיים שמושכות לשני הצדדים.
+ * המרחקים מחושבים ב-script.js לפי גודל המסך.
+ */
+.is-open .envelope__card {
+  transform: translateY(var(--card-up, -42%));
+}
+
+.is-open .envelope {
+  translate: 0 var(--env-down, 0px);
+  transition: translate 0.95s cubic-bezier(0.45, 0, 0.25, 1) 0.5s;
+}
+
+.envelope__pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 -1px 2px rgba(8, 21, 48, 0.3));
+}
+
+.envelope__paper {
+  fill: url(#envelope-paper);
+}
+
+.envelope__text {
+  position: absolute;
+  z-index: 4;
+  right: 6%;
+  bottom: 15%;
+  left: 6%;
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: calc(var(--w) * 0.074);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.envelope__text .divider {
+  width: 62%;
+  margin: 0.4em auto 0;
+}
+
+/* צל דק של שפת הדש על המעטפה */
+.envelope__shade {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 47%;
+  background: rgba(8, 21, 48, 0.12);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transition: opacity 0.2s 0.2s;
+}
+
+.is-open .envelope__shade {
+  opacity: 0;
+}
+
+.envelope__flap {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  transform: perspective(1000px) rotateX(0deg);
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  /* באמצע הסיבוב הדש עובר אל מאחורי ההזמנה */
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.3, 1) 0.2s, z-index 0s linear 0.45s;
+}
+
+.is-open .envelope__flap {
+  z-index: 1;
+  transform: perspective(1000px) rotateX(180deg);
+}
+
+.envelope__face {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(0 0, 100% 0, 53% 96%, 50% 100%, 47% 96%);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.envelope__face--front {
+  background: linear-gradient(#f9f3e8, #efe2c9);
+}
+
+.envelope__face--back {
+  transform: rotateX(180deg);
+}
+
+.seal {
+  position: absolute;
+  z-index: 7;
+  top: calc(var(--w) * 0.43);
+  left: 32%;
+  width: 36%;
+  aspect-ratio: 1;
+}
+
+.seal__half {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 3px rgba(70, 10, 10, 0.4));
+}
+
+/* אותו קו שבר בשני החצאים. החצי הראשון גולש קצת מתחת לשני, כדי שלא ייראה סדק לפני השבירה */
+.seal__half--a {
+  clip-path: polygon(0 0, 54.5% 0, 48.5% 24%, 56.5% 41%, 47.5% 59%, 55.5% 77%, 50.5% 100%, 0 100%);
+}
+
+.seal__half--b {
+  clip-path: polygon(53% 0, 100% 0, 100% 100%, 49% 100%, 54% 77%, 46% 59%, 55% 41%, 47% 24%);
+}
+
+.is-open .seal__half--a {
+  animation: seal-a 0.75s ease-in forwards;
+}
+
+.is-open .seal__half--b {
+  animation: seal-b 0.75s ease-in forwards;
+}
+
+/*
+ * בסוף ההזמנה באה קדימה וגדלה, והמעטפה מתכווצת אל מאחורי מרכז ההזמנה ונמוגה שם.
+ * את ההזמנה script.js מוציא מהמעטפה לשכבה משלה, כדי שהתזוזה של המעטפה לא תזיז אותה.
+ */
+.is-leaving .envelope {
+  opacity: 0;
+  scale: 0.55;
+  translate: 0 var(--env-leave, 0px);
+  transition:
+    translate 1s cubic-bezier(0.45, 0, 0.2, 1),
+    scale 1s cubic-bezier(0.45, 0, 0.2, 1),
+    opacity 0.45s 0.45s;
+}
+
+@keyframes envelope-in {
+  from {
+    transform: translateY(28px) scale(0.96);
+    opacity: 0;
+  }
+}
+
+@keyframes seal-a {
+  12% {
+    transform: translateX(-3%) rotate(-4deg);
+  }
+
+  to {
+    transform: translate(-70%, 130%) rotate(-55deg);
+    opacity: 0;
+  }
+}
+
+@keyframes seal-b {
+  12% {
+    transform: translateX(3%) rotate(4deg);
+  }
+
+  to {
+    transform: translate(70%, 130%) rotate(55deg);
+    opacity: 0;
+  }
+}
+
+.gold-dust {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 /* ---------- מסך רחב: הגיליון ממורכז כמו הזמנה מודפסת ---------- */
