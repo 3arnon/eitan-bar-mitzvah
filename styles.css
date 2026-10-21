@@ -1146,7 +1146,12 @@ textarea.input {
   background: linear-gradient(#f9f3e8, #efe2c9);
 }
 
+/*
+ * הצד הפנימי מצויר הפוך, כי הוא מתהפך פעמיים (פעם בעצמו ופעם עם הדש).
+ * כך אחרי הפתיחה הבסיס הרחב נשאר מחובר למעטפה והקודקוד מצביע למעלה.
+ */
 .envelope__face--back {
+  clip-path: polygon(0 100%, 100% 100%, 53% 4%, 50% 0, 47% 4%);
   transform: rotateX(180deg);
 }
 
