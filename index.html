@@ -23,16 +23,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
-    // המעטפה מוצגת רק בכניסה הראשונה (או עם ?intro בכתובת), ולא למי שביקש בטלפון פחות תנועה
+    // המעטפה מוצגת בכל כניסה, חוץ מקישור ישיר לחלק בדף (#rsvp) ומי שביקש בטלפון פחות תנועה
     try {
-      if (/[?&]intro\b/.test(location.search) ||
-          (!location.hash && !localStorage.getItem("envelope-opened") &&
-           !matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+      if (!location.hash && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
         document.documentElement.classList.add("intro-on");
         // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
         setTimeout(function () {
           document.documentElement.classList.remove("intro-on");
-        }, 10000);
+        }, 12000);
       }
     } catch (e) {}
   </script>
@@ -63,16 +61,20 @@
         <ellipse fill="#fff" fill-opacity="0.35" cx="25" cy="10" rx="6" ry="2.6" transform="rotate(-14 25 10)"/>
       </symbol>
 
-      <!-- חותמת שעווה עם הדיוקן של איתן. הדיוקן שקוע בשעווה: צל בצד העליון ואור בצד התחתון -->
+      <!-- חותמת שעווה כחולה עם מגן דוד ו-13. הסמל שקוע בשעווה: צל בצד העליון ואור בצד התחתון -->
       <radialGradient id="wax" cx="38%" cy="32%" r="75%">
-        <stop offset="0" stop-color="#c94a3f"/>
-        <stop offset="0.45" stop-color="#9c2321"/>
-        <stop offset="1" stop-color="#5a0c0e"/>
+        <stop offset="0" stop-color="#5a86c6"/>
+        <stop offset="0.45" stop-color="#1f4382"/>
+        <stop offset="1" stop-color="#0b1a3d"/>
       </radialGradient>
       <radialGradient id="wax-pressed" cx="42%" cy="38%" r="70%">
-        <stop offset="0" stop-color="#a42a26"/>
-        <stop offset="1" stop-color="#7a1517"/>
+        <stop offset="0" stop-color="#2b5596"/>
+        <stop offset="1" stop-color="#173468"/>
       </radialGradient>
+      <symbol id="seal-emblem" viewBox="0 0 120 120">
+        <path fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" d="M60 38 L79.05 71 L40.95 71 Z M60 82 L40.95 49 L79.05 49 Z"/>
+        <text x="60" y="63.8" direction="ltr" text-anchor="middle" fill="currentColor" font-family="Frank Ruhl Libre, David, serif" font-size="10.5" font-weight="900">13</text>
+      </symbol>
       <linearGradient id="envelope-paper" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#f6eee0"/>
         <stop offset="1" stop-color="#e8d8bb"/>
@@ -85,14 +87,12 @@
       <symbol id="seal-art" viewBox="0 0 120 120">
         <path fill="url(#wax)" d="M60.0 13.8 C65.8 13.8 71.8 15.9 77.4 18.0 C83.0 20.1 89.7 22.2 93.7 26.3 C97.8 30.4 99.4 37.1 101.7 42.7 C103.9 48.4 106.3 53.9 107.2 60.0 C108.0 66.1 109.6 74.2 107.0 79.5 C104.5 84.8 96.7 87.9 91.9 91.9 C87.0 95.9 83.3 101.3 78.0 103.5 C72.7 105.6 66.0 105.0 60.0 105.0 C54.0 104.9 47.4 105.3 42.1 103.2 C36.8 101.0 32.8 95.9 28.1 91.9 C23.4 87.9 16.5 84.3 14.1 79.0 C11.6 73.7 13.1 66.3 13.3 60.0 C13.5 53.7 12.8 46.8 15.2 41.5 C17.7 36.1 23.4 31.9 27.9 27.9 C32.5 24.0 37.1 20.1 42.5 17.7 C47.8 15.3 54.2 13.7 60.0 13.8Z"/>
         <circle cx="60" cy="60" r="36" fill="url(#wax-pressed)"/>
-        <circle cx="59.2" cy="59.2" r="36" fill="none" stroke="#4d080a" stroke-width="2.2" stroke-opacity="0.8"/>
-        <circle cx="60.8" cy="60.8" r="36" fill="none" stroke="#f0a090" stroke-width="1.1" stroke-opacity="0.45"/>
-        <circle cx="60" cy="60" r="31" fill="none" stroke="#5c0b0d" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 4.06"/>
-        <!-- הדיוקן של איתן, צבוע מראש בגווני שעווה (images/eitan-seal.png) -->
-        <circle cx="60" cy="60" r="29.6" fill="#5a0b0d"/>
-        <image href="images/eitan-seal.png" x="31" y="31" width="58" height="58"/>
-        <circle cx="59.4" cy="59.4" r="29" fill="none" stroke="#4a0709" stroke-width="1.4" stroke-opacity="0.7"/>
-        <circle cx="60.6" cy="60.6" r="29" fill="none" stroke="#f0a090" stroke-width="0.8" stroke-opacity="0.4"/>
+        <circle cx="59.2" cy="59.2" r="36" fill="none" stroke="#06122b" stroke-width="2.2" stroke-opacity="0.8"/>
+        <circle cx="60.8" cy="60.8" r="36" fill="none" stroke="#a9c4ee" stroke-width="1.1" stroke-opacity="0.45"/>
+        <circle cx="60" cy="60" r="31" fill="none" stroke="#0d2250" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 4.06"/>
+        <use href="#seal-emblem" x="-0.7" y="-0.7" width="120" height="120" color="#06122b" opacity="0.85"/>
+        <use href="#seal-emblem" x="0.7" y="0.7" width="120" height="120" color="#a9c4ee" opacity="0.5"/>
+        <use href="#seal-emblem" width="120" height="120" color="#163566"/>
         <ellipse cx="42" cy="34" rx="15" ry="7" fill="url(#wax-gloss)" transform="rotate(-32 42 34)"/>
       </symbol>
 

@@ -1124,7 +1124,23 @@ textarea.input {
   inset: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 3px 3px rgba(70, 10, 10, 0.4));
+  filter: drop-shadow(0 3px 3px rgba(8, 21, 48, 0.4));
+}
+
+/* ברק אור שעובר על השעווה באמצע ההמתנה */
+.seal::after {
+  content: "";
+  position: absolute;
+  inset: 13%;
+  border-radius: 50%;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.6) 50%, transparent 62%) no-repeat;
+  background-size: 300% 100%;
+  pointer-events: none;
+  animation: seal-glint 1.1s ease-in-out 1.1s both;
+}
+
+.is-open .seal::after {
+  display: none;
 }
 
 /* אותו קו שבר בשני החצאים. החצי הראשון גולש קצת מתחת לשני, כדי שלא ייראה סדק לפני השבירה */
@@ -1162,6 +1178,16 @@ textarea.input {
   from {
     transform: translateY(28px) scale(0.96);
     opacity: 0;
+  }
+}
+
+@keyframes seal-glint {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: 0 0;
   }
 }
 

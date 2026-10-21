@@ -377,7 +377,7 @@
 
   /* ---------- מעטפת פתיחה ---------- */
 
-  var INTRO_HOLD_MS = 1500; // כמה זמן המעטפה סגורה לפני שהחותמת נשברת
+  var INTRO_HOLD_MS = 2500; // כמה זמן המעטפה סגורה לפני שהחותמת נשברת
   var CARD_OUT_MS = 1500;   // שבירה, דש והזמנה יוצאת (לפי ההשהיות ב-styles.css)
   var FLY_MS = 1000;        // ההזמנה באה קדימה, למקום שלה בראש הדף
   var CARD_TUCK_PX = 10;    // כשההזמנה בחוץ, התחתית שלה עדיין נוגעת בשפת המעטפה
@@ -469,9 +469,6 @@
       root.classList.remove("intro-on");
       sheet.inert = false;
       intro.remove();
-      try {
-        localStorage.setItem("envelope-opened", "1");
-      } catch (e) {}
     }
 
     var envelope = card.parentNode;
