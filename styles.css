@@ -1153,9 +1153,10 @@ textarea.input {
 .seal {
   position: absolute;
   z-index: 7;
-  top: calc(var(--w) * 0.43);
-  left: 32%;
-  width: 36%;
+  /* מרכז החותמת יושב על קצה הדש */
+  top: calc(var(--w) * 0.394);
+  left: 28.4%;
+  width: 43.2%;
   aspect-ratio: 1;
 }
 
