@@ -187,12 +187,16 @@
             <span id="greg-date"></span>
             <span id="hebrew-date"></span>
           </p>
-          <a class="btn btn--navy" href="#rsvp">לאישור הגעה</a>
+          <!-- רמז לגלילה: מוביל לפרטי האירוע, כדי שאף אחד לא ידלג ישר לטופס -->
+          <a class="scroll-cue" href="#details">
+            <span class="scroll-cue__label">לפרטי האירוע ואישור הגעה</span>
+            <svg class="scroll-cue__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </a>
         </section>
 
         <svg class="divider" aria-hidden="true"><use href="#divider"/></svg>
 
-        <section class="blessing" aria-label="ברכה">
+        <section class="blessing" id="details" aria-label="ברכה">
           <div id="blessing-text"></div>
         </section>
 

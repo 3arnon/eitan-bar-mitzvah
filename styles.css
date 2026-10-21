@@ -337,10 +337,50 @@ figure {
   cursor: pointer;
 }
 
+/* ---------- רמז לגלילה ---------- */
+
+.scroll-cue {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--navy);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-cue__label {
+  padding: 9px 22px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--line);
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.scroll-cue__arrow {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: cue-bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes cue-bounce {
+  50% {
+    transform: translateY(6px);
+  }
+}
+
 /* ---------- ברכה ---------- */
 
 .blessing {
   max-width: 400px;
+  scroll-margin-top: 24px;
   margin-inline: auto;
   text-align: center;
 }
