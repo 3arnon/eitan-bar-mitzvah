@@ -294,7 +294,7 @@
     });
   }
 
-  /* ---------- כרטיס כניסה וקונפטי אחרי אישור הגעה ---------- */
+  /* ---------- כרטיס כניסה אחרי אישור הגעה ---------- */
 
   function renderPass(data) {
     $("pass-event").textContent = "בר המצווה של " + E.childName;
@@ -316,71 +316,64 @@
     });
   }
 
-  function confetti(origin) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  /* ---------- "אתם מוכנים?" וסוכריות שנזרקות אל המסך, אחרי אישור הגעה ---------- */
 
-    var canvas = el("canvas", "confetti");
-    canvas.setAttribute("aria-hidden", "true");
-    document.body.appendChild(canvas);
-    var ctx = canvas.getContext("2d");
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var SHOWER_TITLE_MS = 1100;  // כמה זמן "אתם מוכנים?" לבד על המסך לפני שזורקים
+  var SHOWER_REVEAL_MS = 2200; // המסך מלא בסוכריות: מתחת מחליפים את הטופס בכרטיס
+  var SHOWER_FADE_MS = 2300;   // השכבה מתחילה להיעלם, והכרטיס מתגלה
+  var CANDY_COUNT = 46;
+  var CANDY_COLORS = ["#0f2147", "#b17d27", "#3f6488", "#d6bd8b", "#1f4382"];
+
+  // reveal נקרא כשהמסך מכוסה בסוכריות, כך שהכרטיס מופיע בדיוק כשהשכבה נעלמת
+  function candyShower(reveal) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !document.body.animate) {
+      reveal();
+      return;
+    }
+
+    var layer = el("div", "shower");
+    layer.setAttribute("aria-hidden", "true");
+    var title = el("p", "shower__title");
+    title.appendChild(el("span", null, "אתם"));
+    title.appendChild(el("span", null, "מוכנים?"));
+    layer.appendChild(title);
+    document.body.appendChild(layer);
+
+    // אחרי ההכרזה הכותרת מתקרבת ונעלמת, ומתחילים לזרוק
+    title.animate([{ transform: "none", opacity: 1 }, { transform: "scale(1.5)", opacity: 0 }],
+      { duration: 400, delay: SHOWER_TITLE_MS, easing: "ease-in", fill: "forwards" });
+
     var w = window.innerWidth;
     var h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    ctx.scale(dpr, dpr);
+    for (var i = 0; i < CANDY_COUNT; i++) {
+      var candy = icon("candy", "shower__candy");
+      candy.style.color = CANDY_COLORS[i % CANDY_COLORS.length];
+      layer.appendChild(candy);
 
-    var colors = ["#b17d27", "#d6bd8b", "#0f2147", "#3f6488", "#e9d3a1"];
-    var box = origin.getBoundingClientRect();
-    var cx = box.left + box.width / 2;
-    var cy = Math.max(60, Math.min(h * 0.5, box.top + 60));
-    var pieces = [];
-    for (var i = 0; i < 160; i++) {
-      var angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.1;
-      var speed = 7 + Math.random() * 9;
-      pieces.push({
-        x: cx + (Math.random() - 0.5) * 40,
-        y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 5 + Math.random() * 6,
-        rot: Math.random() * Math.PI,
-        spin: (Math.random() - 0.5) * 0.3,
-        round: Math.random() < 0.25,
-        color: colors[i % colors.length]
+      // כל סוכריה מתחילה קטנה ורחוקה ליד המרכז, ומאיצה אל המסתכל: גדלה, מסתובבת ויוצאת מהמסך
+      var x0 = (Math.random() - 0.5) * w * 0.3;
+      var y0 = (Math.random() - 0.5) * h * 0.25;
+      var x1 = x0 * 3 + (Math.random() - 0.5) * w;
+      var y1 = y0 * 3 + (Math.random() - 0.5) * h;
+      var start = "translate(" + x0 + "px, " + y0 + "px) rotate(0deg) scale(0.1)";
+      var end = "translate(" + x1 + "px, " + y1 + "px) rotate(" + (Math.random() - 0.5) * 720 + "deg) scale(" + (4 + Math.random() * 4) + ")";
+      candy.animate([
+        { transform: start, opacity: 0 },
+        { opacity: 1, offset: 0.2 },
+        { transform: end, opacity: 1, offset: 0.85 },
+        { transform: end, opacity: 0 }
+      ], {
+        duration: 800 + Math.random() * 400,
+        delay: SHOWER_TITLE_MS + Math.random() * 600,
+        easing: "cubic-bezier(0.55, 0, 0.9, 0.5)",
+        fill: "both"
       });
     }
 
-    var start = performance.now();
-    var DURATION = 3200;
-    function frame(now) {
-      var t = now - start;
-      ctx.clearRect(0, 0, w, h);
-      ctx.globalAlpha = t > DURATION - 700 ? Math.max(0, (DURATION - t) / 700) : 1;
-      pieces.forEach(function (p) {
-        p.vx *= 0.985;
-        p.vy = p.vy * 0.985 + 0.32;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.spin;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.color;
-        if (p.round) {
-          ctx.beginPath();
-          ctx.arc(0, 0, p.size / 2.4, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          // סיבוב בציר אחד נותן לפיסה מראה של נייר שמתהפך באוויר
-          ctx.fillRect(-p.size / 2, -p.size / 4 * Math.abs(Math.cos(p.rot * 2)) - 1, p.size, p.size / 2 * Math.abs(Math.cos(p.rot * 2)) + 2);
-        }
-        ctx.restore();
-      });
-      if (t < DURATION) requestAnimationFrame(frame);
-      else canvas.remove();
-    }
-    requestAnimationFrame(frame);
+    setTimeout(reveal, SHOWER_REVEAL_MS);
+    layer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, delay: SHOWER_FADE_MS, fill: "forwards" }).onfinish = function () {
+      layer.remove();
+    };
   }
 
   /* ---------- מעטפת פתיחה ---------- */
@@ -704,14 +697,18 @@
         $("thanks-check").toggleAttribute("hidden", !coming);
         $("pass").hidden = !coming;
         $("thanks-hint").hidden = !coming;
-        // זורקים סוכריות רק בעלייה לתורה, ולכן רק מי שמגיע אליה רואה את התזכורת
-        $("candy").hidden = !coming || data.part === "event";
         if (coming) renderPass(data);
-        form.hidden = true;
-        thanks.hidden = false;
-        thanks.focus({ preventScroll: true });
-        thanks.scrollIntoView({ block: "start" });
-        if (coming) confetti(thanks);
+
+        function reveal() {
+          form.hidden = true;
+          thanks.hidden = false;
+          thanks.focus({ preventScroll: true });
+          // מתחת לסוכריות קופצים ישר לכרטיס, בלי גלילה שנראית דרך השכבה
+          thanks.scrollIntoView({ block: "start", behavior: coming ? "instant" : "auto" });
+        }
+        // מי שמגיע מקבל "אתם מוכנים?" וגשם סוכריות, ורק אחריו את הכרטיס
+        if (coming) candyShower(reveal);
+        else reveal();
       }).catch(function () {
         setStatus("לא הצלחנו לשמור את התשובה. בדקו את החיבור לאינטרנט ונסו שוב.", true);
       }).finally(function () {

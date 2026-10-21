@@ -841,76 +841,71 @@ textarea.input {
   font-size: 0.95rem;
 }
 
-/* ---------- סוכריות (למי שמגיע לעלייה לתורה) ---------- */
+/* ---------- "אתם מוכנים?" וסוכריות שנזרקות אל המסך, אחרי אישור הגעה ---------- */
 
-.candy {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px dashed var(--gold-soft);
-}
-
-.candy__art {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 6px;
-  height: 52px;
-}
-
-.candy__piece {
-  width: 70px;
-  height: 35px;
-  filter: drop-shadow(0 4px 3px rgba(8, 21, 48, 0.18));
-  /* כל סוכריה נופלת בתורה ונוחתת בזווית משלה */
-  animation: candy-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
-}
-
-.candy__piece--blue {
-  --tilt: -16deg;
-  color: var(--wash);
-  animation-delay: 0.9s;
-}
-
-.candy__piece--gold {
-  --tilt: 8deg;
-  margin-bottom: 14px;
-  color: var(--gold);
-  animation-delay: 1.05s;
-}
-
-.candy__piece--navy {
-  --tilt: -5deg;
-  color: var(--navy);
-  animation-delay: 1.2s;
-}
-
-.candy__title {
-  margin-top: 10px;
-  color: var(--navy);
-  font-family: var(--serif);
-  font-size: 1.55rem;
-  font-weight: 900;
-  line-height: 1.3;
-}
-
-@keyframes candy-drop {
-  from {
-    transform: translateY(-40px) rotate(calc(var(--tilt) - 50deg));
-    opacity: 0;
-  }
-
-  to {
-    transform: rotate(var(--tilt));
-  }
-}
-
-.confetti {
+.shower {
   position: fixed;
   inset: 0;
-  z-index: 30;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(244, 237, 226, 0.94);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: shower-in 0.25s ease-out both;
+}
+
+.shower__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--navy);
+  font-family: var(--serif);
+  font-weight: 900;
+  line-height: 1.05;
+  text-align: center;
+}
+
+/* כל מילה קופצת בתורה */
+.shower__title span {
+  display: block;
+  animation: shower-pop 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.shower__title span:first-child {
+  color: var(--gold);
+  font-size: clamp(2rem, 10vw, 3rem);
+  animation-delay: 0.1s;
+}
+
+.shower__title span:last-child {
+  font-size: clamp(3.2rem, 17vw, 5.5rem);
+  animation-delay: 0.35s;
+}
+
+/* כל הסוכריות יוצאות ממרכז המסך. המסלול של כל אחת נקבע ב-script.js */
+.shower__candy {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  height: 32px;
+  margin: -16px 0 0 -32px;
+}
+
+@keyframes shower-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes shower-pop {
+  from {
+    transform: scale(0.2) rotate(-8deg);
+    opacity: 0;
+  }
 }
 
 @keyframes pop {
