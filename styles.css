@@ -895,6 +895,68 @@ textarea.input {
   margin: -16px 0 0 -32px;
 }
 
+/* סבב נוסף מהכפתור: הסוכריות עפות ישר מעל הדף, והדף נשאר לחיץ */
+.shower--clear {
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  pointer-events: none;
+  animation: none;
+}
+
+.more-candy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 48px;
+  margin: 18px auto 0;
+  padding: 8px 22px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 6px 14px -8px rgba(8, 21, 48, 0.4);
+  color: var(--navy);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.more-candy:active {
+  transform: scale(0.95);
+}
+
+/* האמוג'י מתגלגל מצחוק בלי הפסקה */
+.more-candy__emoji {
+  display: inline-block;
+  font-size: 1.6rem;
+  line-height: 1;
+  animation: giggle 1.2s ease-in-out infinite;
+}
+
+@keyframes giggle {
+  15% {
+    transform: translateY(-4px) rotate(-16deg);
+  }
+
+  30% {
+    transform: rotate(14deg);
+  }
+
+  45% {
+    transform: translateY(-3px) rotate(-10deg);
+  }
+
+  60% {
+    transform: rotate(6deg);
+  }
+
+  75% {
+    transform: none;
+  }
+}
+
 @keyframes shower-in {
   from {
     opacity: 0;

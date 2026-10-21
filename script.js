@@ -322,11 +322,56 @@
   var SHOWER_REVEAL_MS = 2200; // המסך מלא בסוכריות: מתחת מחליפים את הטופס בכרטיס
   var SHOWER_FADE_MS = 2300;   // השכבה מתחילה להיעלם, והכרטיס מתגלה
   var CANDY_COUNT = 46;
-  var CANDY_COLORS = ["#0f2147", "#b17d27", "#3f6488", "#d6bd8b", "#1f4382"];
+  var CANDY_COLORS = ["#e63946", "#ff6fae", "#ffbe0b", "#fb5607", "#06d6a0", "#3a86ff", "#8338ec"];
+  var CANDY_LONGEST_MS = 1800; // ההשהיה הארוכה ביותר + הזריקה הארוכה ביותר
+
+  function calmMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches || !document.body.animate;
+  }
+
+  // כל סוכריה מתחילה קטנה ורחוקה ליד המרכז, ומאיצה אל המסתכל: גדלה, מסתובבת ויוצאת מהמסך
+  function throwCandies(layer, delay) {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    for (var i = 0; i < CANDY_COUNT; i++) {
+      var candy = icon("candy", "shower__candy");
+      candy.style.color = CANDY_COLORS[i % CANDY_COLORS.length];
+      layer.appendChild(candy);
+
+      var x0 = (Math.random() - 0.5) * w * 0.3;
+      var y0 = (Math.random() - 0.5) * h * 0.25;
+      var x1 = x0 * 3 + (Math.random() - 0.5) * w;
+      var y1 = y0 * 3 + (Math.random() - 0.5) * h;
+      var start = "translate(" + x0 + "px, " + y0 + "px) rotate(0deg) scale(0.1)";
+      var end = "translate(" + x1 + "px, " + y1 + "px) rotate(" + (Math.random() - 0.5) * 720 + "deg) scale(" + (4 + Math.random() * 4) + ")";
+      candy.animate([
+        { transform: start, opacity: 0 },
+        { opacity: 1, offset: 0.2 },
+        { transform: end, opacity: 1, offset: 0.85 },
+        { transform: end, opacity: 0 }
+      ], {
+        duration: 800 + Math.random() * 400,
+        delay: delay + Math.random() * 600,
+        easing: "cubic-bezier(0.55, 0, 0.9, 0.5)",
+        fill: "both"
+      });
+    }
+  }
+
+  // הכפתור "לעוד סוכריות": זורק עוד סבב ישר מעל הדף, בלי לעמעם אותו
+  function moreCandies() {
+    var layer = el("div", "shower shower--clear");
+    layer.setAttribute("aria-hidden", "true");
+    document.body.appendChild(layer);
+    throwCandies(layer, 0);
+    setTimeout(function () {
+      layer.remove();
+    }, CANDY_LONGEST_MS);
+  }
 
   // reveal נקרא כשהמסך מכוסה בסוכריות, כך שהכרטיס מופיע בדיוק כשהשכבה נעלמת
   function candyShower(reveal) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !document.body.animate) {
+    if (calmMotion()) {
       reveal();
       return;
     }
@@ -343,32 +388,7 @@
     title.animate([{ transform: "none", opacity: 1 }, { transform: "scale(1.5)", opacity: 0 }],
       { duration: 400, delay: SHOWER_TITLE_MS, easing: "ease-in", fill: "forwards" });
 
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    for (var i = 0; i < CANDY_COUNT; i++) {
-      var candy = icon("candy", "shower__candy");
-      candy.style.color = CANDY_COLORS[i % CANDY_COLORS.length];
-      layer.appendChild(candy);
-
-      // כל סוכריה מתחילה קטנה ורחוקה ליד המרכז, ומאיצה אל המסתכל: גדלה, מסתובבת ויוצאת מהמסך
-      var x0 = (Math.random() - 0.5) * w * 0.3;
-      var y0 = (Math.random() - 0.5) * h * 0.25;
-      var x1 = x0 * 3 + (Math.random() - 0.5) * w;
-      var y1 = y0 * 3 + (Math.random() - 0.5) * h;
-      var start = "translate(" + x0 + "px, " + y0 + "px) rotate(0deg) scale(0.1)";
-      var end = "translate(" + x1 + "px, " + y1 + "px) rotate(" + (Math.random() - 0.5) * 720 + "deg) scale(" + (4 + Math.random() * 4) + ")";
-      candy.animate([
-        { transform: start, opacity: 0 },
-        { opacity: 1, offset: 0.2 },
-        { transform: end, opacity: 1, offset: 0.85 },
-        { transform: end, opacity: 0 }
-      ], {
-        duration: 800 + Math.random() * 400,
-        delay: SHOWER_TITLE_MS + Math.random() * 600,
-        easing: "cubic-bezier(0.55, 0, 0.9, 0.5)",
-        fill: "both"
-      });
-    }
+    throwCandies(layer, SHOWER_TITLE_MS);
 
     setTimeout(reveal, SHOWER_REVEAL_MS);
     layer.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600, delay: SHOWER_FADE_MS, fill: "forwards" }).onfinish = function () {
@@ -697,6 +717,7 @@
         $("thanks-check").toggleAttribute("hidden", !coming);
         $("pass").hidden = !coming;
         $("thanks-hint").hidden = !coming;
+        $("more-candy").hidden = !coming || calmMotion();
         if (coming) renderPass(data);
 
         function reveal() {
@@ -717,6 +738,8 @@
         submit.textContent = "שליחת אישור";
       });
     });
+
+    $("more-candy").addEventListener("click", moreCandies);
 
     $("rsvp-again").addEventListener("click", function () {
       form.reset();
