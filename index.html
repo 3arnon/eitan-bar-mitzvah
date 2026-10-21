@@ -23,15 +23,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
-    // המעטפה מוצגת בכל כניסה, חוץ מקישור ישיר לחלק בדף (#rsvp) ומי שביקש בטלפון פחות תנועה
+    // המעטפה מוצגת בכל כניסה. מי שביקש בטלפון פחות תנועה מקבל גרסה שקטה: המעטפה מתעמעמת לתוך ההזמנה
     try {
-      if (!location.hash && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        document.documentElement.classList.add("intro-on");
-        // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
-        setTimeout(function () {
-          document.documentElement.classList.remove("intro-on");
-        }, 12000);
-      }
+      var root = document.documentElement;
+      root.classList.add("intro-on");
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) root.classList.add("intro-calm");
+      // תמיד מתחילים מראש הדף, גם ברענון וגם אם בכתובת נשאר סימון של חלק בדף (למשל #details)
+      if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+      history.scrollRestoration = "manual";
+      // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
+      setTimeout(function () {
+        root.classList.remove("intro-on");
+      }, 12000);
     } catch (e) {}
   </script>
 </head>
@@ -188,7 +191,7 @@
             <span id="hebrew-date"></span>
           </p>
           <!-- רמז לגלילה: מוביל לפרטי האירוע, כדי שאף אחד לא ידלג ישר לטופס -->
-          <a class="scroll-cue" href="#details">
+          <a class="scroll-cue" id="scroll-cue" href="#details">
             <span class="scroll-cue__label">לפרטי האירוע ואישור הגעה</span>
             <svg class="scroll-cue__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
           </a>

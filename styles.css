@@ -976,6 +976,11 @@ textarea.input {
   visibility: hidden;
 }
 
+/* בגרסה השקטה המעטפה מתעמעמת, ולכן ההזמנה צריכה כבר להיות מתחתיה */
+.intro-calm .hero__invitation {
+  visibility: visible;
+}
+
 .intro::before {
   content: "";
   position: absolute;

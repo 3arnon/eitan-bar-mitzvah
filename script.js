@@ -286,6 +286,14 @@
     });
   }
 
+  // גלילה לפרטי האירוע בלי לשנות את הכתובת, כדי שקישור שמועתק מהדפדפן עדיין יפתח עם המעטפה
+  function setupScrollCue() {
+    $("scroll-cue").addEventListener("click", function (ev) {
+      ev.preventDefault();
+      $("details").scrollIntoView();
+    });
+  }
+
   /* ---------- כרטיס כניסה וקונפטי אחרי אישור הגעה ---------- */
 
   function renderPass(data) {
@@ -382,6 +390,7 @@
   var CARD_OUT_MS = 1150;   // שבירה, דש והזמנה יוצאת (לפי ההשהיות ב-styles.css)
   var FLY_MS = 750;         // ההזמנה באה קדימה, למקום שלה בראש הדף
   var CARD_TUCK_PX = 10;    // כשההזמנה בחוץ, התחתית שלה עדיין נוגעת בשפת המעטפה
+  var CALM_FADE_MS = 700;   // בגרסה השקטה (בטלפון שביקש פחות תנועה), המעטפה מתעמעמת לתוך ההזמנה
 
   function wait(ms) {
     return new Promise(function (resolve) { setTimeout(resolve, ms); });
@@ -455,8 +464,10 @@
 
     var card = $("intro-card");
     var sheet = document.querySelector(".sheet");
+    var calm = root.classList.contains("intro-calm");
     var opened = false;
     sheet.inert = true;
+    window.scrollTo(0, 0);
     $("envelope-text").textContent = E.envelopeText || "";
     if (card.getAttribute("src") !== E.invitationImage) card.src = E.invitationImage;
 
@@ -518,9 +529,22 @@
       ], { duration: FLY_MS, easing: "cubic-bezier(0.45, 0, 0.2, 1)", fill: "forwards" }).onfinish = finish;
     }
 
+    // הגרסה השקטה: בלי תנועה, המעטפה רק מתעמעמת והחוצה מתגלה ההזמנה
+    function fadeOut() {
+      if (!intro.animate) {
+        finish();
+        return;
+      }
+      intro.animate([{ opacity: 1 }, { opacity: 0 }], { duration: CALM_FADE_MS, easing: "ease", fill: "forwards" }).onfinish = finish;
+    }
+
     function open() {
       if (opened) return;
       opened = true;
+      if (calm) {
+        fadeOut();
+        return;
+      }
       setPull();
       intro.classList.add("is-open");
       goldDust($("seal"));
@@ -725,6 +749,7 @@
   renderHero();
   renderText();
   renderStops();
+  setupScrollCue();
   startCountdown();
   setupRsvp();
 })();
