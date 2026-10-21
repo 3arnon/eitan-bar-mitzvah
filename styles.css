@@ -1177,7 +1177,7 @@ textarea.input {
   background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.6) 50%, transparent 62%) no-repeat;
   background-size: 300% 100%;
   pointer-events: none;
-  animation: seal-glint 0.9s ease-in-out 0.5s both;
+  animation: seal-glint 0.9s ease-in-out 1.1s both;
 }
 
 .is-open .seal::after {
