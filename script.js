@@ -247,6 +247,25 @@
     return a;
   }
 
+  // כפתור יומן אחד שמתאים למכשיר: באייפון חלון "הוספה ליומן" של אפל, בשאר המכשירים יומן Google
+  function calendarButton(stop, className) {
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      var ics = icsLink(stop);
+      ics.className = className;
+      ics.textContent = "הוספה ליומן";
+      return ics;
+    }
+    var a = el("a", className, "הוספה ליומן");
+    a.href = googleCalendarUrl(stop);
+    a.target = "_blank";
+    a.rel = "noopener";
+    return a;
+  }
+
+  function wazeUrl(stop) {
+    return "https://waze.com/ul?q=" + encodeURIComponent(stop.navQuery) + "&navigate=yes";
+  }
+
   /* ---------- סדר היום ---------- */
 
   function renderStops() {
@@ -262,7 +281,7 @@
 
       var actions = el("div", "stop__actions");
       var waze = el("a", "btn btn--outline", "ניווט ב-Waze");
-      waze.href = "https://waze.com/ul?q=" + query + "&navigate=yes";
+      waze.href = wazeUrl(stop);
       var maps = el("a", "btn btn--outline", "Google Maps");
       maps.href = "https://www.google.com/maps/search/?api=1&query=" + query;
       [waze, maps].forEach(function (a) {
@@ -303,7 +322,9 @@
     $("pass-count").textContent = "מספר אורחים: " + data.count;
 
     var list = $("pass-stops");
+    var actions = $("pass-actions");
     list.textContent = "";
+    actions.textContent = "";
     E.stops.forEach(function (stop) {
       if (data.part !== "both" && data.part !== stop.id) return;
       var li = el("li", "pass__stop");
@@ -313,6 +334,19 @@
       what.appendChild(el("span", null, stop.place));
       li.appendChild(what);
       list.appendChild(li);
+
+      // מתחת לכרטיס: ניווט ויומן לכל חלק שהאורח מגיע אליו
+      var row = el("div", "pass-action");
+      row.appendChild(el("p", "pass-action__title", stop.title + " · " + shortTime(stop.start)));
+      var buttons = el("div", "stop__actions");
+      var waze = el("a", "btn btn--outline", "ניווט ב-Waze");
+      waze.href = wazeUrl(stop);
+      waze.target = "_blank";
+      waze.rel = "noopener";
+      buttons.appendChild(waze);
+      buttons.appendChild(calendarButton(stop, "btn btn--outline"));
+      row.appendChild(buttons);
+      actions.appendChild(row);
     });
   }
 
@@ -756,12 +790,13 @@
         var coming = data.attending === "yes";
         $("thanks-title").textContent = coming ? "נרשמתם בהצלחה!" : "תודה שעדכנתם";
         $("thanks-text").textContent = coming
-          ? "מחכים לראותכם. כדאי להוסיף את האירוע ליומן מהקישורים שלמעלה."
+          ? "מחכים לראותכם! ניווט והוספה ליומן מחכים לכם מתחת לכרטיס."
           : "חבל שלא תוכלו להגיע. נשמח לחגוג איתכם בהזדמנות אחרת.";
         // ל-svg אין מאפיין hidden כמו לאלמנט HTML, לכן משנים את התכונה עצמה
         $("thanks-check").toggleAttribute("hidden", !coming);
         $("pass").hidden = !coming;
         $("thanks-hint").hidden = !coming;
+        $("pass-actions").hidden = !coming;
         $("more-candy").hidden = !coming || calmMotion();
         if (coming) renderPass(data);
 

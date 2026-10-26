@@ -22,20 +22,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet">
   <!-- ?v= הוא מספר גרסה: מעלים אותו בכל עדכון, כדי שטלפונים לא יציגו עותק ישן של הקבצים -->
-  <link rel="stylesheet" href="styles.css?v=20261026c">
+  <link rel="stylesheet" href="styles.css?v=20261026d">
+  <!-- פרטי האירוע נטענים כבר כאן, כדי לדעת אם היום הוא יום האירוע לפני שמציגים את המעטפה -->
+  <script src="config.js?v=20261026d"></script>
   <script>
     // המעטפה מוצגת בכל כניסה. מי שביקש בטלפון פחות תנועה מקבל גרסה שקטה: המעטפה מתעמעמת לתוך ההזמנה
     try {
       var root = document.documentElement;
-      root.classList.add("intro-on");
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) root.classList.add("intro-calm");
-      // תמיד מתחילים מראש הדף, גם ברענון וגם אם בכתובת נשאר סימון של חלק בדף (למשל #details)
-      if (location.hash) history.replaceState(null, "", location.pathname + location.search);
-      history.scrollRestoration = "manual";
-      // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
-      setTimeout(function () {
-        root.classList.remove("intro-on");
-      }, 12000);
+      // ביום האירוע עצמו (לפי שעון ישראל) נכנסים בשביל הניווט, ולכן בלי מעטפה
+      var today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+      if (!window.EVENT || today !== window.EVENT.date) {
+        root.classList.add("intro-on");
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) root.classList.add("intro-calm");
+        // תמיד מתחילים מראש הדף, גם ברענון וגם אם בכתובת נשאר סימון של חלק בדף (למשל #details)
+        if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+        history.scrollRestoration = "manual";
+        // רשת ביטחון: גם אם משהו נתקע, ההזמנה לא נשארת מוסתרת
+        setTimeout(function () {
+          root.classList.remove("intro-on");
+        }, 12000);
+      }
     } catch (e) {}
   </script>
 </head>
@@ -298,10 +304,11 @@
             </div>
             <p class="thanks__hint" id="thanks-hint" hidden>אפשר לצלם את המסך ולשמור את הכרטיס</p>
 
+            <div class="pass-actions" id="pass-actions" hidden></div>
+
             <button type="button" class="more-candy" id="more-candy" hidden>
               לחצו כאן לעוד סוכריות <span class="more-candy__emoji" aria-hidden="true">😂</span>
             </button>
-
 
             <button type="button" class="link-btn" id="rsvp-again">שליחת תשובה נוספת</button>
           </div>
@@ -316,7 +323,6 @@
     </div>
   </div>
 
-  <script src="config.js?v=20261026c"></script>
-  <script src="script.js?v=20261026c"></script>
+  <script src="script.js?v=20261026d"></script>
 </body>
 </html>

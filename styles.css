@@ -973,6 +973,32 @@ textarea.input {
   font-size: 0.95rem;
 }
 
+/* ניווט ויומן לכל חלק שהאורח מגיע אליו, מתחת לכרטיס */
+.pass-actions {
+  display: grid;
+  gap: 16px;
+  max-width: 340px;
+  margin: 20px auto 0;
+}
+
+.pass-action__title {
+  color: var(--navy);
+  font-weight: 700;
+}
+
+/* שני הכפתורים זה לצד זה גם בטלפון צר */
+.pass-action .stop__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.pass-action .btn {
+  padding-inline: 8px;
+  font-size: 0.95rem;
+}
+
 /* ---------- "אתם מוכנים?" וסוכריות שנזרקות אל המסך, אחרי אישור הגעה ---------- */
 
 .shower {
