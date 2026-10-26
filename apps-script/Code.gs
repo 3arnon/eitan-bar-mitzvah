@@ -1,11 +1,12 @@
 /**
- * בר המצווה של איתן: קבלת אישורי הגעה מדף ההזמנה ושליחת תזכורת במייל יום לפני.
+ * בר המצווה של איתן: קבלת אישורי הגעה מדף ההזמנה, תזכורת במייל לאורחים יום לפני,
+ * וסיכום יומי במייל אליך על תשובות חדשות.
  *
  * הקוד הזה מודבק לתוך Google Sheets (תוספים > Apps Script) ורץ בחשבון Google שלך.
  * שום מידע על אורחים לא נשמר מחוץ לגיליון.
  *
- * ההקמה אוטומטית: בפנייה הראשונה לשירות נוצרות הלשוניות ומופעלת בדיקת התזכורות היומית.
- * אפשר גם להריץ ידנית את setup, ואת testReminder ששולח מייל לדוגמה רק אליך.
+ * ההקמה אוטומטית: בפנייה הראשונה לשירות נוצרות הלשוניות ומופעלות שתי הבדיקות היומיות.
+ * אפשר גם להריץ ידנית את setup, ומהתפריט "בר מצווה" לשלוח לעצמך תזכורת לדוגמה או סיכום לדוגמה.
  */
 
 var TZ = 'Asia/Jerusalem';
@@ -40,31 +41,40 @@ function setup() {
   var ss = SpreadsheetApp.getActive();
   ensureSheets_(ss);
   ensureTrigger_();
-  ss.toast('נוצרו הלשוניות והופעלה בדיקת תזכורות יומית בשעה 9:00.', 'ההקמה הושלמה', 10);
+  ss.toast('נוצרו הלשוניות. סיכום יומי אליך ב-8:00, תזכורות לאורחים ב-9:00.', 'ההקמה הושלמה', 10);
 }
 
 // מחזיר מה מוכן, כדי שאפשר יהיה לבדוק את השירות מבחוץ. לא נוגע במה שכבר קיים.
 function ensureSetup_() {
   var ss = SpreadsheetApp.getActive();
-  var state = { sheets: false, reminderTrigger: false };
+  var state = { sheets: false, reminderTrigger: false, summaryTrigger: false };
   if (!ss.getSheetByName(SHEET_RSVP) || !ss.getSheetByName(SHEET_SETTINGS) || !ss.getSheetByName(SHEET_SUMMARY)) {
     ensureSheets_(ss);
   }
   state.sheets = true;
   try {
     ensureTrigger_();
-    state.reminderTrigger = true;
+    var handlers = triggerHandlers_();
+    state.reminderTrigger = handlers.indexOf('sendReminders') >= 0;
+    state.summaryTrigger = handlers.indexOf('sendDailySummary') >= 0;
   } catch (err) {
     state.triggerError = String(err && err.message || err);
   }
   return state;
 }
 
+function triggerHandlers_() {
+  return ScriptApp.getProjectTriggers().map(function (trigger) { return trigger.getHandlerFunction(); });
+}
+
 function ensureTrigger_() {
-  var exists = ScriptApp.getProjectTriggers().some(function (trigger) {
-    return trigger.getHandlerFunction() === 'sendReminders';
-  });
-  if (!exists) ScriptApp.newTrigger('sendReminders').timeBased().everyDays(1).atHour(9).inTimezone(TZ).create();
+  var handlers = triggerHandlers_();
+  if (handlers.indexOf('sendReminders') < 0) {
+    ScriptApp.newTrigger('sendReminders').timeBased().everyDays(1).atHour(9).inTimezone(TZ).create();
+  }
+  if (handlers.indexOf('sendDailySummary') < 0) {
+    ScriptApp.newTrigger('sendDailySummary').timeBased().everyDays(1).atHour(8).inTimezone(TZ).create();
+  }
 }
 
 function ensureSheets_(ss) {
@@ -96,6 +106,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('בר מצווה')
     .addItem('רענון סיכום וכפילויות', 'refreshSummary')
     .addItem('שליחת תזכורת לדוגמה אליי', 'testReminder')
+    .addItem('שליחת סיכום יומי לדוגמה אליי', 'testDailySummary')
     .addToUi();
 }
 
@@ -142,6 +153,7 @@ function doGet() {
       service: 'rsvp',
       sheets: state.sheets,
       reminderTrigger: state.reminderTrigger,
+      summaryTrigger: state.summaryTrigger,
       triggerError: state.triggerError || '',
       pageLink: !!settings_().pageUrl
     });
@@ -194,8 +206,38 @@ function readRows_() {
 function refresh_() {
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName(SHEET_RSVP);
-  var rows = readRows_();
+  var result = tally_(readRows_());
+  var marks = result.marks;
+  var t = result.totals;
+  var warnings = result.warnings;
+  if (marks.length) sheet.getRange(2, COL.duplicate, marks.length, 1).setValues(marks);
 
+  var out = [
+    ['סיכום אישורי הגעה', ''],
+    ['סה"כ תשובות', t.replies],
+    ['סה"כ אנשים שמגיעים', t.people],
+    ['מגיעים לעלייה לתורה', t.synagogue],
+    ['מגיעים לאירוע', t.event],
+    ['תשובות "לא מגיעים"', t.declined],
+    ['יקבלו תזכורת במייל', t.emails],
+    ['עודכן', Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm')],
+    ['', ''],
+    ['התראות', warnings.length ? '' : 'אין']
+  ];
+  warnings.forEach(function (w) { out.push(['', w]); });
+
+  var summary = ss.getSheetByName(SHEET_SUMMARY);
+  summary.clearContents();
+  summary.getRange(1, 1, out.length, 2).setValues(out);
+  summary.getRange(1, 1, out.length, 1).setFontWeight('bold');
+  summary.getRange(1, 2, out.length, 1).setFontColor('#000000').setHorizontalAlignment('right');
+  if (warnings.length) summary.getRange(11, 2, warnings.length, 1).setFontColor('#9f2f25');
+  summary.setColumnWidth(1, 220);
+  summary.setColumnWidth(2, 520);
+}
+
+// סופר את התשובות ומוצא כפילויות וחוסרים. אותו חישוב משמש את לשונית הסיכום ואת המייל היומי.
+function tally_(rows) {
   // כפילויות: אותו שם יותר מפעם אחת. מסמנים ולא מוחקים, ההחלטה שלך.
   var seen = {};
   rows.forEach(function (r) {
@@ -206,7 +248,6 @@ function refresh_() {
     var key = String(r[COL.name - 1]).replace(/\s+/g, ' ').trim().toLowerCase();
     return [key && seen[key] > 1 ? DUPLICATE_MARK : ''];
   });
-  if (marks.length) sheet.getRange(2, COL.duplicate, marks.length, 1).setValues(marks);
 
   var t = { replies: 0, people: 0, synagogue: 0, event: 0, declined: 0, emails: 0, duplicates: 0, incomplete: 0 };
   rows.forEach(function (r, i) {
@@ -234,28 +275,82 @@ function refresh_() {
   if (t.incomplete) warnings.push(t.incomplete + ' שורות עם נתון חסר (סטטוס, מספר אנשים או חלק).');
   if (t.emails > EMAIL_QUOTA_WARNING) warnings.push(t.emails + ' נמענים לתזכורת. חשבון Gmail רגיל שולח עד כ-100 מיילים ביום, ייתכן שחלק לא יקבלו.');
 
-  var out = [
-    ['סיכום אישורי הגעה', ''],
-    ['סה"כ תשובות', t.replies],
-    ['סה"כ אנשים שמגיעים', t.people],
-    ['מגיעים לעלייה לתורה', t.synagogue],
-    ['מגיעים לאירוע', t.event],
-    ['תשובות "לא מגיעים"', t.declined],
-    ['יקבלו תזכורת במייל', t.emails],
-    ['עודכן', Utilities.formatDate(new Date(), TZ, 'dd/MM/yyyy HH:mm')],
-    ['', ''],
-    ['התראות', warnings.length ? '' : 'אין']
-  ];
-  warnings.forEach(function (w) { out.push(['', w]); });
+  return { marks: marks, totals: t, warnings: warnings };
+}
 
-  var summary = ss.getSheetByName(SHEET_SUMMARY);
-  summary.clearContents();
-  summary.getRange(1, 1, out.length, 2).setValues(out);
-  summary.getRange(1, 1, out.length, 1).setFontWeight('bold');
-  summary.getRange(1, 2, out.length, 1).setFontColor('#000000').setHorizontalAlignment('right');
-  if (warnings.length) summary.getRange(11, 2, warnings.length, 1).setFontColor('#9f2f25');
-  summary.setColumnWidth(1, 220);
-  summary.setColumnWidth(2, 520);
+/* ---------- סיכום יומי במייל אליך ---------- */
+
+// רץ כל בוקר ב-8:00. שולח רק אם הגיעו תשובות חדשות ב-24 השעות האחרונות, ורק עד יום האירוע.
+function sendDailySummary() {
+  var mail = buildDailySummary_(readRows_(), new Date(), settings_(), SpreadsheetApp.getActive().getUrl(), false);
+  if (mail) sendToOwner_(mail);
+}
+
+// שולח את הסיכום אליך עכשיו, גם אם אין תשובות חדשות. לא משנה דבר בגיליון.
+function testDailySummary() {
+  sendToOwner_(buildDailySummary_(readRows_(), new Date(), settings_(), SpreadsheetApp.getActive().getUrl(), true));
+}
+
+function sendToOwner_(mail) {
+  MailApp.sendEmail({ to: Session.getEffectiveUser().getEmail(), subject: mail.subject, body: mail.text, htmlBody: mail.html });
+}
+
+// בונה את המייל, או מחזיר null כשאין מה לשלוח. לא נוגע בגיליון, כדי שאפשר יהיה לבדוק אותו בנפרד.
+function buildDailySummary_(rows, now, s, sheetUrl, force) {
+  var today = Utilities.formatDate(now, TZ, 'yyyy-MM-dd');
+  var validDate = /^\d{4}-\d{2}-\d{2}$/.test(s.date);
+  if (!force && validDate && today > s.date) return null;
+
+  var since = now.getTime() - 24 * 60 * 60 * 1000;
+  var fresh = rows.filter(function (r) {
+    var received = r[COL.received - 1];
+    return Object.prototype.toString.call(received) === '[object Date]' && received.getTime() > since;
+  });
+  if (!fresh.length && !force) return null;
+
+  var result = tally_(rows);
+  var t = result.totals;
+  var lines = fresh.map(function (r) {
+    var bits = [r[COL.name - 1], r[COL.status - 1]];
+    if (r[COL.status - 1] === STATUS_YES) bits.push(r[COL.count - 1] + ' אנשים', r[COL.part - 1]);
+    if (r[COL.note - 1]) bits.push('הערה: ' + r[COL.note - 1]);
+    return bits.join(' · ');
+  });
+  var totals = [
+    'תשובות: ' + t.replies,
+    'מגיעים: ' + t.people + ' אנשים (עלייה לתורה ' + t.synagogue + ', אירוע ' + t.event + ')',
+    'לא מגיעים: ' + t.declined
+  ];
+
+  var countdown = '';
+  if (validDate) {
+    var days = Math.round((Date.parse(s.date) - Date.parse(today)) / 86400000);
+    countdown = days === 0 ? 'היום האירוע!' : days === 1 ? 'מחר האירוע.' : days > 1 ? 'עוד ' + days + ' ימים לאירוע.' : '';
+  }
+
+  var freshTitle = !fresh.length ? 'אין תשובות חדשות' : fresh.length === 1 ? 'תשובה חדשה אחת' : fresh.length + ' תשובות חדשות';
+  var subject = 'בר מצווה: ' + (fresh.length ? freshTitle : 'סיכום') + ' · ' + t.people + ' מגיעים';
+
+  var text = [freshTitle + ' מ-24 השעות האחרונות' + (lines.length ? ':' : '.')]
+    .concat(lines.map(function (l) { return '• ' + l; }))
+    .concat(['', 'סה"כ עד עכשיו:'], totals)
+    .concat(result.warnings.length ? ['', 'לבדיקה:'].concat(result.warnings) : [])
+    .concat(countdown ? ['', countdown] : [])
+    .concat(['', 'הגיליון: ' + sheetUrl])
+    .join('\n');
+
+  function list(items) {
+    return '<ul style="margin:4px 0 16px;padding-right:20px">' + items.map(function (i) { return '<li>' + esc_(i) + '</li>'; }).join('') + '</ul>';
+  }
+  var html = '<div dir="rtl" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#0f2147">' +
+    '<p style="margin:0"><b>' + esc_(freshTitle) + ' מ-24 השעות האחרונות</b></p>' +
+    (lines.length ? list(lines) : '<p style="margin:0 0 16px"></p>') +
+    '<p style="margin:0"><b>סה"כ עד עכשיו</b></p>' + list(totals) +
+    (result.warnings.length ? '<p style="margin:0;color:#9f2f25"><b>לבדיקה</b></p>' + list(result.warnings) : '') +
+    (countdown ? '<p>' + esc_(countdown) + '</p>' : '') +
+    '<p><a href="' + esc_(sheetUrl) + '">פתיחת הגיליון</a></p></div>';
+
+  return { subject: subject, text: text, html: html };
 }
 
 /* ---------- תזכורת במייל ---------- */
