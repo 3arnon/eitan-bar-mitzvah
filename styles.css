@@ -613,70 +613,39 @@ textarea.input {
 }
 
 /*
- * הדרכה בצעדים: השלב הבא בטופס פועם בקצב של דופק (שתי קפיצות בחצי שנייה, ואז שנייה של מנוחה)
- * עם הילת זהב. script.js מעביר את is-next משלב לשלב: הגעה, חלק, ובסוף כפתור השליחה.
+ * הדרכה בצעדים: השלב הבא בטופס "נושם": שנייה החוצה ושנייה פנימה, עם הילת זהב רכה.
+ * script.js מעביר את is-next משלב לשלב: הגעה, חלק, ובסוף כפתור השליחה.
  */
 .is-next .choice span,
 .is-next .part__card {
-  animation: heartbeat 1.5s ease-in-out infinite;
+  animation: breathe 2s ease-in-out infinite;
 }
 
 .btn.is-next {
-  animation: heartbeat-btn 1.5s ease-in-out infinite;
+  animation: breathe-btn 2s ease-in-out infinite;
 }
 
-@keyframes heartbeat {
-  0%,
-  33%,
-  100% {
-    transform: none;
-    box-shadow: 0 0 0 0 rgba(177, 125, 39, 0);
-  }
-
-  8% {
-    transform: scale(1.06);
-    box-shadow: 0 0 0 6px rgba(177, 125, 39, 0.3);
-  }
-
-  16% {
-    transform: none;
-    box-shadow: 0 0 0 3px rgba(177, 125, 39, 0.15);
-  }
-
-  24% {
-    transform: scale(1.06);
-    box-shadow: 0 0 0 8px rgba(177, 125, 39, 0.25);
+@keyframes breathe {
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 6px rgba(177, 125, 39, 0.28);
   }
 }
 
 /* לכפתור השליחה יש כבר מסגרת זהב דקה, וההילה נבנית מסביבה */
-@keyframes heartbeat-btn {
-  0%,
-  33%,
-  100% {
-    transform: none;
-    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 2px rgba(177, 125, 39, 0);
-  }
-
-  8% {
-    transform: scale(1.04);
-    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 9px rgba(177, 125, 39, 0.3);
-  }
-
-  16% {
-    transform: none;
-    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 5px rgba(177, 125, 39, 0.15);
-  }
-
-  24% {
-    transform: scale(1.04);
-    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 11px rgba(177, 125, 39, 0.25);
+@keyframes breathe-btn {
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 9px rgba(177, 125, 39, 0.28);
   }
 }
 
 /* בחירת חלק: שני כרטיסים זה לצד זה, אפשר לסמן אחד או את שניהם */
 .parts__hint {
   margin: -4px 0 10px;
+  color: var(--gold-ink);
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .parts {
