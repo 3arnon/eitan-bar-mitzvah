@@ -615,8 +615,9 @@
     var thanks = $("rsvp-thanks");
     var sending = false;
 
-    if (E.rsvpDeadline) {
-      $("rsvp-deadline").textContent = "נשמח לקבל את תשובתכם עד " + longDate(E.rsvpDeadline);
+    var request = E.rsvpDeadline ? "נשמח לקבל את תשובתכם עד " + longDate(E.rsvpDeadline) : E.rsvpRequest;
+    if (request) {
+      $("rsvp-deadline").textContent = request;
       $("rsvp-deadline").hidden = false;
     }
 

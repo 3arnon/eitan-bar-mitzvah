@@ -52,8 +52,11 @@ window.EVENT = {
     }
   ],
 
-  // תאריך אחרון לאישור הגעה (שנה-חודש-יום). ריק = לא מוצג.
-  rsvpDeadline: "2026-11-09",
+  // המשפט שמעל טופס אישור ההגעה. ריק = לא מוצג.
+  rsvpRequest: "נשמח לקבל את תשובתכם בהקדם",
+
+  // תאריך אחרון לאישור הגעה (שנה-חודש-יום). אם ממלאים, הוא מוצג במקום המשפט שלמעלה. ריק = לא מוצג.
+  rsvpDeadline: "",
 
   // כתובת שירות אישורי ההגעה (Google Apps Script). אם פורסים מחדש ב-Google ומתקבלת כתובת חדשה, מעדכנים כאן.
   rsvpUrl: "https://script.google.com/macros/s/AKfycbyNnTPXB0d7fGf57yOSbZECKCpsRtZC8tMmxH2itIEy0XglhNyCV0u9sK4rd8J8y_xm-Q/exec"
