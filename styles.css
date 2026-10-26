@@ -612,6 +612,107 @@ textarea.input {
   outline-offset: 2px;
 }
 
+/* בחירת חלק: שני כרטיסים זה לצד זה, אפשר לסמן אחד או את שניהם */
+.parts__hint {
+  margin: -4px 0 10px;
+}
+
+.parts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.part {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.part input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.part__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+  padding: 14px 8px 12px;
+  border: 1px solid #c9b88f;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--navy);
+  text-align: center;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.part__icon {
+  width: 46px;
+  height: 46px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.part__title {
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.part__time {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* עיגול הסימון: ריק עד שבוחרים, ואז זהב עם וי */
+.part__check {
+  width: 24px;
+  height: 24px;
+  margin-top: 6px;
+  border: 1.5px solid #c9b88f;
+  border-radius: 50%;
+  background: #fff center / 14px no-repeat;
+}
+
+.part input:checked + .part__card {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+}
+
+.part input:checked + .part__card .part__icon {
+  stroke: var(--gold-soft);
+}
+
+.part input:checked + .part__card .part__time {
+  color: #d9deea;
+}
+
+.part input:checked + .part__card .part__check {
+  border-color: var(--gold-soft);
+  background-color: var(--gold);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.part input:focus-visible + .part__card {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.part input[aria-invalid="true"] + .part__card {
+  border-color: var(--error);
+}
+
 .stepper {
   display: flex;
   gap: 8px;

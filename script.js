@@ -606,15 +606,40 @@
     $("count-minus").addEventListener("click", function () { stepCount(-1); });
     $("count-plus").addEventListener("click", function () { stepCount(1); });
 
+    // כרטיס לכל חלק ביום, עם האייקון והשעה מההזמנה
+    E.stops.forEach(function (stop) {
+      var label = el("label", "part");
+      var input = el("input");
+      input.type = "checkbox";
+      input.name = "part";
+      input.value = stop.id;
+      input.addEventListener("change", function () { setError("part", ""); });
+      var card = el("span", "part__card");
+      card.appendChild(icon(stop.icon, "part__icon"));
+      card.appendChild(el("span", "part__title", stop.title));
+      card.appendChild(el("span", "part__time", "בשעה " + shortTime(stop.start)));
+      var check = el("span", "part__check");
+      check.setAttribute("aria-hidden", "true");
+      card.appendChild(check);
+      label.appendChild(input);
+      label.appendChild(card);
+      $("parts").appendChild(label);
+    });
+
     function setError(name, message) {
       var box = $("err-" + name);
-      var input = form.elements[name];
+      var field = form.elements[name];
+      // קבוצת כפתורים (הגעה, חלק) מסומנת כולה, כדי שהמסגרת האדומה והקפיצה לשגיאה יעבדו גם בה
+      var inputs = field && !field.setAttribute ? Array.from(field) : [field];
       box.textContent = message;
       box.hidden = !message;
-      if (input && input.setAttribute) {
+      inputs.forEach(function (input) {
+        if (!input) return;
         if (message) input.setAttribute("aria-invalid", "true");
         else input.removeAttribute("aria-invalid");
-      }
+      });
+      // כשהשגיאה האחרונה תוקנה, גם "יש שדות שדורשים תיקון" שלמטה נעלם
+      if (!message && !form.querySelector(".field__error:not([hidden])")) setStatus("", false);
     }
 
     function setStatus(message, isError) {
@@ -635,7 +660,9 @@
       };
       if (attending === "yes") {
         data.count = Number(count.value);
-        data.part = form.querySelector('input[name="part"]:checked').value;
+        // שני הכרטיסים מסומנים = "both", כמו שהגיליון מצפה; אחד = המזהה שלו; אף אחד = ריק (שגיאה)
+        var picked = Array.from(form.querySelectorAll('input[name="part"]:checked')).map(function (i) { return i.value; });
+        data.part = picked.length === E.stops.length ? "both" : (picked[0] || "");
         data.email = form.elements.email.value.trim();
       }
       return data;
@@ -643,7 +670,7 @@
 
     function validate(data) {
       var ok = true;
-      ["name", "attending", "count", "email"].forEach(function (n) { setError(n, ""); });
+      ["name", "attending", "count", "part", "email"].forEach(function (n) { setError(n, ""); });
 
       if (data.name.length < 2) {
         setError("name", "נא למלא שם מלא");
@@ -656,6 +683,10 @@
       if (data.attending === "yes") {
         if (!(data.count >= 1 && data.count <= MAX_GUESTS) || Math.floor(data.count) !== data.count) {
           setError("count", "נא למלא מספר בין 1 ל-" + MAX_GUESTS);
+          ok = false;
+        }
+        if (!data.part) {
+          setError("part", "נא לסמן לאיזה חלק תגיעו");
           ok = false;
         }
         if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)) {

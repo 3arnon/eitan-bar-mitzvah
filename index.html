@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet">
   <!-- ?v= הוא מספר גרסה: מעלים אותו בכל עדכון, כדי שטלפונים לא יציגו עותק ישן של הקבצים -->
-  <link rel="stylesheet" href="styles.css?v=20261021d">
+  <link rel="stylesheet" href="styles.css?v=20261026a">
   <script>
     // המעטפה מוצגת בכל כניסה. מי שביקש בטלפון פחות תנועה מקבל גרסה שקטה: המעטפה מתעמעמת לתוך ההזמנה
     try {
@@ -245,13 +245,12 @@
                 <p class="field__error" id="err-count" hidden></p>
               </div>
 
+              <!-- כרטיס לכל חלק ביום (נבנה מ-config.js). שום דבר לא מסומן מראש, וחובה לסמן לפחות אחד -->
               <fieldset class="field">
                 <legend class="field__label">לאיזה חלק תגיעו?</legend>
-                <div class="choices choices--stack">
-                  <label class="choice"><input type="radio" name="part" value="both" checked><span>העלייה לתורה והאירוע</span></label>
-                  <label class="choice"><input type="radio" name="part" value="synagogue"><span>העלייה לתורה בלבד</span></label>
-                  <label class="choice"><input type="radio" name="part" value="event"><span>האירוע בלבד</span></label>
-                </div>
+                <p class="field__hint parts__hint">אפשר לסמן את שניהם</p>
+                <div class="parts" id="parts"></div>
+                <p class="field__error" id="err-part" hidden></p>
               </fieldset>
 
               <div class="field">
@@ -317,7 +316,7 @@
     </div>
   </div>
 
-  <script src="config.js?v=20261021d"></script>
-  <script src="script.js?v=20261021d"></script>
+  <script src="config.js?v=20261026a"></script>
+  <script src="script.js?v=20261026a"></script>
 </body>
 </html>
