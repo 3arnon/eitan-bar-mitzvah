@@ -626,6 +626,20 @@
       $("parts").appendChild(label);
     });
 
+    // הדרכה בצעדים: רק השלב הבא שצריך לעשות פועם, ואחרי שעושים אותו הדופק עובר הלאה
+    var attendingChoices = form.querySelector('input[name="attending"]').closest(".choices");
+    function updateGuide() {
+      var attending = attendingValue();
+      var partPicked = !!form.querySelector('input[name="part"]:checked');
+      var nameOk = form.elements.name.value.trim().length >= 2;
+      attendingChoices.classList.toggle("is-next", !attending);
+      $("parts").classList.toggle("is-next", attending === "yes" && !partPicked);
+      submit.classList.toggle("is-next", nameOk && (attending === "no" || (attending === "yes" && partPicked)));
+    }
+    form.addEventListener("input", updateGuide);
+    form.addEventListener("change", updateGuide);
+    updateGuide();
+
     function setError(name, message) {
       var box = $("err-" + name);
       var field = form.elements[name];
@@ -774,6 +788,7 @@
 
     $("rsvp-again").addEventListener("click", function () {
       form.reset();
+      updateGuide();
       details.hidden = true;
       thanks.hidden = true;
       form.hidden = false;

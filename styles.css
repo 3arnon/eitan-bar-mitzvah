@@ -612,6 +612,68 @@ textarea.input {
   outline-offset: 2px;
 }
 
+/*
+ * הדרכה בצעדים: השלב הבא בטופס פועם בקצב של דופק (שתי קפיצות בחצי שנייה, ואז שנייה של מנוחה)
+ * עם הילת זהב. script.js מעביר את is-next משלב לשלב: הגעה, חלק, ובסוף כפתור השליחה.
+ */
+.is-next .choice span,
+.is-next .part__card {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.btn.is-next {
+  animation: heartbeat-btn 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%,
+  33%,
+  100% {
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(177, 125, 39, 0);
+  }
+
+  8% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 6px rgba(177, 125, 39, 0.3);
+  }
+
+  16% {
+    transform: none;
+    box-shadow: 0 0 0 3px rgba(177, 125, 39, 0.15);
+  }
+
+  24% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 8px rgba(177, 125, 39, 0.25);
+  }
+}
+
+/* לכפתור השליחה יש כבר מסגרת זהב דקה, וההילה נבנית מסביבה */
+@keyframes heartbeat-btn {
+  0%,
+  33%,
+  100% {
+    transform: none;
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 2px rgba(177, 125, 39, 0);
+  }
+
+  8% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 9px rgba(177, 125, 39, 0.3);
+  }
+
+  16% {
+    transform: none;
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 5px rgba(177, 125, 39, 0.15);
+  }
+
+  24% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 11px rgba(177, 125, 39, 0.25);
+  }
+}
+
 /* בחירת חלק: שני כרטיסים זה לצד זה, אפשר לסמן אחד או את שניהם */
 .parts__hint {
   margin: -4px 0 10px;
@@ -1451,5 +1513,15 @@ textarea.input {
   * {
     transition: none !important;
     animation: none !important;
+  }
+
+  /* בלי תנועה: השלב הבא מקבל הילת זהב קבועה במקום דופק */
+  .is-next .choice span,
+  .is-next .part__card {
+    box-shadow: 0 0 0 3px rgba(177, 125, 39, 0.45);
+  }
+
+  .btn.is-next {
+    box-shadow: 0 0 0 1px var(--cream), 0 0 0 2px var(--gold), 0 0 0 6px rgba(177, 125, 39, 0.45);
   }
 }
