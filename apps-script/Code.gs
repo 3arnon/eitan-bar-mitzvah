@@ -1,6 +1,6 @@
 /**
  * בר המצווה של איתן: קבלת אישורי הגעה מדף ההזמנה, תזכורת במייל לאורחים יום לפני,
- * וסיכום יומי במייל אליך על תשובות חדשות.
+ * וסיכום יומי במייל על תשובות חדשות (לכתובת שבלשונית "הגדרות", או אליך אם היא ריקה).
  *
  * הקוד הזה מודבק לתוך Google Sheets (תוספים > Apps Script) ורץ בחשבון Google שלך.
  * שום מידע על אורחים לא נשמר מחוץ לגיליון.
@@ -32,7 +32,9 @@ var SETTINGS = [
   ['עלייה לתורה', 'בשעה 10:30, בית הכנסת במושב ביצרון'],
   ['אירוע', 'בשעה 12:00, ג\'וייס, מושב ביצרון'],
   ['קישור לדף ההזמנה', 'https://3arnon.github.io/eitan-bar-mitzvah/'],
-  ['חתימה', 'משפחת ונטורה']
+  ['חתימה', 'משפחת ונטורה'],
+  // הכתובת נשמרת רק בגיליון ולא בקוד, כי הקוד ציבורי ב-GitHub
+  ['מייל לסיכום היומי (ריק = אליך. כמה כתובות: מפרידים בפסיק)', '']
 ];
 
 /* ---------- הקמה ---------- */
@@ -51,6 +53,7 @@ function ensureSetup_() {
   if (!ss.getSheetByName(SHEET_RSVP) || !ss.getSheetByName(SHEET_SETTINGS) || !ss.getSheetByName(SHEET_SUMMARY)) {
     ensureSheets_(ss);
   }
+  ensureSettingsRows_(ss);
   state.sheets = true;
   try {
     ensureTrigger_();
@@ -61,6 +64,15 @@ function ensureSetup_() {
     state.triggerError = String(err && err.message || err);
   }
   return state;
+}
+
+// לשונית "הגדרות" שנוצרה בגרסה קודמת: מוסיפים כותרות לשורות החדשות, בלי לגעת בערכים שכבר מולאו
+function ensureSettingsRows_(ss) {
+  var sheet = ss.getSheetByName(SHEET_SETTINGS);
+  var labels = sheet.getRange(1, 1, SETTINGS.length, 1).getValues();
+  SETTINGS.forEach(function (row, i) {
+    if (!String(labels[i][0]).trim()) sheet.getRange(i + 1, 1).setValue(row[0]).setFontWeight('bold');
+  });
 }
 
 function triggerHandlers_() {
@@ -106,7 +118,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('בר מצווה')
     .addItem('רענון סיכום וכפילויות', 'refreshSummary')
     .addItem('שליחת תזכורת לדוגמה אליי', 'testReminder')
-    .addItem('שליחת סיכום יומי לדוגמה אליי', 'testDailySummary')
+    .addItem('שליחת סיכום יומי לדוגמה', 'testDailySummary')
     .addToUi();
 }
 
@@ -155,7 +167,9 @@ function doGet() {
       reminderTrigger: state.reminderTrigger,
       summaryTrigger: state.summaryTrigger,
       triggerError: state.triggerError || '',
-      pageLink: !!settings_().pageUrl
+      pageLink: !!settings_().pageUrl,
+      // רק אם מולא מייל לסיכום, בלי לחשוף את הכתובת עצמה
+      summaryTo: !!settings_().summaryTo
     });
   } catch (err) {
     return json_({ ok: false, error: String(err && err.message || err) });
@@ -278,21 +292,34 @@ function tally_(rows) {
   return { marks: marks, totals: t, warnings: warnings };
 }
 
-/* ---------- סיכום יומי במייל אליך ---------- */
+/* ---------- סיכום יומי במייל ---------- */
 
 // רץ כל בוקר ב-8:00. שולח רק אם הגיעו תשובות חדשות ב-24 השעות האחרונות, ורק עד יום האירוע.
 function sendDailySummary() {
-  var mail = buildDailySummary_(readRows_(), new Date(), settings_(), SpreadsheetApp.getActive().getUrl(), false);
-  if (mail) sendToOwner_(mail);
+  var s = settings_();
+  var mail = buildDailySummary_(readRows_(), new Date(), s, SpreadsheetApp.getActive().getUrl(), false);
+  if (mail) sendSummary_(mail, s);
 }
 
-// שולח את הסיכום אליך עכשיו, גם אם אין תשובות חדשות. לא משנה דבר בגיליון.
+// שולח את הסיכום עכשיו לנמענים שבלשונית "הגדרות", גם אם אין תשובות חדשות. לא משנה דבר בגיליון.
 function testDailySummary() {
-  sendToOwner_(buildDailySummary_(readRows_(), new Date(), settings_(), SpreadsheetApp.getActive().getUrl(), true));
+  var s = settings_();
+  sendSummary_(buildDailySummary_(readRows_(), new Date(), s, SpreadsheetApp.getActive().getUrl(), true), s);
 }
 
-function sendToOwner_(mail) {
-  MailApp.sendEmail({ to: Session.getEffectiveUser().getEmail(), subject: mail.subject, body: mail.text, htmlBody: mail.html });
+// הנמענים מלשונית "הגדרות". ריק = אליך. כתובת לא תקינה = אליך, עם הסבר בכותרת, כדי שלא ילך לאיבוד.
+function summaryRecipients_(s) {
+  var owner = Session.getEffectiveUser().getEmail();
+  if (!s.summaryTo) return { to: owner, note: '' };
+  var list = s.summaryTo.split(/[,;\s]+/).filter(Boolean);
+  var bad = list.filter(function (email) { return !EMAIL_RE.test(email); });
+  if (bad.length) return { to: owner, note: '[מייל לא תקין בלשונית הגדרות: ' + bad.join(', ') + '] ' };
+  return { to: list.join(','), note: '' };
+}
+
+function sendSummary_(mail, s) {
+  var r = summaryRecipients_(s);
+  MailApp.sendEmail({ to: r.to, subject: r.note + mail.subject, body: mail.text, htmlBody: mail.html });
 }
 
 // בונה את המייל, או מחזיר null כשאין מה לשלוח. לא נוגע בגיליון, כדי שאפשר יהיה לבדוק אותו בנפרד.
@@ -367,7 +394,8 @@ function settings_() {
     synagogue: String(values[2][0]).trim(),
     event: String(values[3][0]).trim(),
     pageUrl: String(values[4][0]).trim(),
-    signature: String(values[5][0]).trim()
+    signature: String(values[5][0]).trim(),
+    summaryTo: String(values[6][0]).trim()
   };
 }
 
