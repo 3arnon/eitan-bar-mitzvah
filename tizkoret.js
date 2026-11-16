@@ -43,7 +43,8 @@
   }
 
   function findGuest() {
-    var key = new URLSearchParams(location.search).get("g") || window.GUESTS_SAMPLE || "";
+    // בדף האישי של משפחה (t/שם/) האורח קבוע בדף עצמו. בדף הכללי הוא נבחר לפי ?g= שבסוף הקישור
+    var key = window.GUEST_KEY || new URLSearchParams(location.search).get("g") || window.GUESTS_SAMPLE || "";
     return Object.prototype.hasOwnProperty.call(GUESTS, key) ? GUESTS[key] : null;
   }
 
