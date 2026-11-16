@@ -16,5 +16,18 @@ window.GUESTS = {
         "names": "שחר, דן, גיא ואור"
       }
     ]
+  },
+  "ventura-amir": {
+    "name": "עמיר ונטורה",
+    "tables": [
+      {
+        "table": 6,
+        "names": "עמיר"
+      },
+      {
+        "table": 4,
+        "names": "ליאל, אמילי ודניאל"
+      }
+    ]
   }
 };
