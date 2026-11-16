@@ -10,3 +10,4 @@ private/
 
 # הגדרות מקומיות של Claude במחשב הזה
 .claude/
+*.pdf
