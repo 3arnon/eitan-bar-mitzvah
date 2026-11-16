@@ -276,21 +276,12 @@ window.GUESTS = {
       }
     ]
   },
-  "gilad-lahiani": {
-    "name": "גלעד לחיאני",
+  "gilad-shlomit": {
+    "name": "גלעד ושלומית",
     "tables": [
       {
         "table": 1,
-        "names": "גלעד"
-      }
-    ]
-  },
-  "shlomit-albas": {
-    "name": "שלומית אלבס",
-    "tables": [
-      {
-        "table": 1,
-        "names": "שלומית"
+        "names": "גלעד ושלומית"
       }
     ]
   },
