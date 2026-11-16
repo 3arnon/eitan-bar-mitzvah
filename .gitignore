@@ -3,3 +3,10 @@ WhatsApp Image*.jpeg
 
 # התמונה המקורית של איתן. האתר משתמש רק בגרסה המעובדת שבחותמת, images/eitan-seal.png
 צילום מסך*.png
+
+# רשימות מוזמנים והושבה: מידע פרטי, לא עולה ל-GitHub
+*.xlsx
+private/
+
+# הגדרות מקומיות של Claude במחשב הזה
+.claude/

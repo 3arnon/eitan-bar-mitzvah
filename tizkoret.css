@@ -1,0 +1,244 @@
+/*
+ * תוספות לדף התזכורת האישית (tizkoret.html). כל השאר מגיע מ-styles.css, כדי שהתזכורת תיראה כמו ההזמנה.
+ */
+
+/* ---------- המכתב שבראש הדף ----------
+ * כל המידות בפנים הן באחוזים מרוחב המכתב (cqw), כדי שהוא ייראה אותו דבר בכל טלפון.
+ */
+.letter {
+  container-type: inline-size;
+  aspect-ratio: 4 / 5;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.45 0 0 0 0 0.28 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--paper);
+}
+
+.letter__in {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 9cqw 9cqw 8cqw;
+  overflow: hidden;
+  color: var(--navy);
+  text-align: center;
+}
+
+/* כתמי צבעי המים של ההזמנה, בשתי פינות */
+.letter__in::before,
+.letter__in::after {
+  content: "";
+  position: absolute;
+  width: 84cqw;
+  height: 84cqw;
+  background: url("images/wash.webp") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.letter__in::before {
+  top: -50cqw;
+  right: -48cqw;
+}
+
+.letter__in::after {
+  bottom: -50cqw;
+  left: -48cqw;
+}
+
+/* מסגרת זהב כפולה */
+.letter__frame {
+  position: absolute;
+  inset: 3.4cqw;
+  border: 1px solid var(--gold);
+  pointer-events: none;
+}
+
+.letter__frame::before {
+  content: "";
+  position: absolute;
+  inset: 1cqw;
+  border: 1px solid var(--gold-soft);
+}
+
+/* השורות נכנסות אחת אחרי השנייה */
+.letter__in > :not(.letter__frame) {
+  position: relative;
+  z-index: 1;
+  animation: rise 0.7s ease-out both;
+}
+
+.letter__in > :nth-child(3) { animation-delay: 0.15s; }
+.letter__in > :nth-child(4) { animation-delay: 0.35s; }
+.letter__in > :nth-child(5) { animation-delay: 0.5s; }
+.letter__in > :nth-child(6) { animation-delay: 0.7s; }
+.letter__in > :nth-child(7) { animation-delay: 0.85s; }
+.letter__in > :nth-child(8) { animation-delay: 0.95s; }
+
+.letter__kicker {
+  color: var(--gold-ink);
+  font-size: 4.6cqw;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  /* הריווח נוסף אחרי כל אות, ובלי זה המילה נראית לא ממורכזת */
+  margin-inline-end: -0.22em;
+}
+
+.letter__to {
+  margin-top: 3cqw;
+  font-family: var(--serif);
+  font-size: 10.4cqw;
+  font-weight: 900;
+  line-height: 1.15;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.letter__line {
+  margin-top: 6cqw;
+  font-size: 5.5cqw;
+  line-height: 1.3;
+}
+
+.letter__child {
+  font-family: var(--serif);
+  font-size: 17cqw;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.letter .divider {
+  width: 56cqw;
+  margin-block: 4.5cqw 4cqw;
+}
+
+.letter__date {
+  font-size: 5.2cqw;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.letter__hdate {
+  color: var(--gold-ink);
+  font-size: 4.7cqw;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* ---------- השולחנות ---------- */
+
+.tables {
+  text-align: center;
+}
+
+.tables__lead {
+  max-width: 340px;
+  margin: 8px auto 0;
+  color: var(--navy);
+  font-size: 1.15rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.seats {
+  display: grid;
+  gap: 14px;
+  max-width: 400px;
+  margin: 22px auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* השולחן מימין (עם המספר על המפה), והשמות לידו */
+.seat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 8px 16px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--line);
+  text-align: start;
+}
+
+/* שולחן עגול עם מפה כחולה שמתנופפת ברוח. הציור עצמו נעשה ב-tizkoret.js */
+.seat__art {
+  display: block;
+  flex: none;
+  width: min(101px, 27vw);
+  aspect-ratio: 200 / 186;
+}
+
+.seat__who {
+  min-width: 0;
+}
+
+.seat__kicker {
+  color: var(--gold-ink);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.seat__names {
+  margin-top: 2px;
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 1.42rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* השולחנות נכנסים אחד אחרי השני כשמגיעים אליהם */
+.seats.will-reveal .seat {
+  opacity: 0;
+}
+
+.seats.is-in .seat {
+  opacity: 1;
+  animation: rise 0.7s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.22s);
+}
+
+.seats.is-in .seat__art {
+  animation: table-in 0.8s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.22s + 0.1s);
+}
+
+@keyframes table-in {
+  from {
+    transform: scale(0.6) translateY(10px);
+    opacity: 0;
+  }
+}
+
+/* ---------- דרכי הגעה וסיום ---------- */
+
+.schedule__title {
+  margin-bottom: 26px;
+}
+
+.closing__back {
+  margin-top: 18px;
+}
+
+.closing__back a {
+  display: inline-block;
+  padding: 8px 6px;
+  color: var(--navy);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+.unknown {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  padding-block: 20px;
+  color: var(--navy);
+  text-align: center;
+}
