@@ -174,7 +174,7 @@
   display: block;
   flex: none;
   width: min(101px, 27vw);
-  aspect-ratio: 200 / 186;
+  aspect-ratio: 200 / 172;
 }
 
 .seat__who {

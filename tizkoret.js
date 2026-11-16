@@ -11,7 +11,7 @@
   var CALM = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // כמה זמן המכתב מוצג לפני שהדף גולל לבד אל השולחנות, וכמה זמן הגלילה עצמה נמשכת
-  var SCROLL_AFTER_MS = 3500;
+  var SCROLL_AFTER_MS = 2000;
   var SCROLL_MS = 1300;
 
   function $(id) {
@@ -71,12 +71,12 @@
    */
 
   var ART_W = 200;
-  var ART_H = 186;
-  var CX = 100;     // מרכז משטח השולחן
+  var ART_H = 172;
+  var CX = 106;     // מרכז משטח השולחן. הוא מוזז ימינה, כי הרוח מעיפה את המפה שמאלה
   var CY = 54;
-  var RX = 78;      // חצי רוחב המשטח
-  var RY = 30;      // חצי גובה המשטח, כפי שהוא נראה באלכסון
-  var DROP = 72;    // אורך המפה מהמשטח עד הרצפה
+  var RX = 74;      // חצי רוחב המשטח
+  var RY = 28.5;    // חצי גובה המשטח, כפי שהוא נראה באלכסון
+  var DROP = 65;    // אורך המפה מהמשטח עד הרצפה
   var FLARE = 1.15; // המפה מתרחבת כלפי מטה, כמו בד שנופל מעל שולחן
   var STRIPS = 96;
   var SEATS = 10;
@@ -140,18 +140,23 @@
         var th = Math.PI * i / STRIPS; // 0 בצד ימין, חצי פאי מול המסתכל, פאי בצד שמאל
         var c = Math.cos(th);
         var s = Math.sin(th);
-        // הקפלים נשארים במקומם ומתנדנדים ברוח, ועוד אדווה קטנה שרצה לאורך השוליים
-        var a1 = th * 10 + seed + 0.9 * Math.sin(t * 1.3 + seed) * gust + 0.35 * Math.sin(t * 2.1 + th * 2);
-        var a2 = th * 17 + seed * 2 + t * 0.9;
+        // הקפלים עצמם קבועים במקומם, כמו בבד אמיתי, ורק הרוח מזיזה אותם.
+        // הרוח באה מימין: היא דוחפת את השוליים שמאלה, מצמידה את הבד לשולחן בצד ימין,
+        // מנפחת ומרימה אותו מעט בצד שמאל, ושולחת עליו אדוות קטנות שרצות מימין לשמאל.
+        var a1 = th * 10 + seed;
+        var a2 = th * 17 + seed * 2;
         // בקצוות הצדדיים הקפלים נרגעים, כדי שהצללית של המפה תישאר רכה
         var calm = Math.pow(s, 0.6);
-        var fold = calm * (Math.sin(a1) + 0.25 * Math.sin(a2)) / 1.25;
-        var slope = calm * (Math.cos(a1) + 0.4 * Math.cos(a2)) / 1.4;
-        var r = FLARE + 0.085 * fold;
+        var lee = 0.5 - 0.5 * c; // 0 בצד שפונה אל הרוח, 1 בצד המוגן ממנה
+        var ripple = 9 * c + t * 4.6 + seed;
+        var open = 1 - 0.35 * gust * (1 - lee);
+        var fold = calm * (open * (Math.sin(a1) + 0.25 * Math.sin(a2)) / 1.25 + 0.38 * gust * Math.sin(ripple));
+        var slope = calm * (open * (Math.cos(a1) + 0.4 * Math.cos(a2)) / 1.4 - 0.38 * gust * s * Math.cos(ripple));
+        var r = FLARE + 0.085 * fold + 0.07 * gust * lee;
         var tx = CX + RX * c;
         var ty = CY + RY * s;
-        var hx = CX + RX * r * c + sway * (0.3 + 0.7 * s);
-        var hy = CY + RY * r * s + DROP + 3.4 * fold;
+        var hx = CX + RX * r * c + sway * (0.6 - 0.3 * c + 0.2 * s);
+        var hy = CY + RY * r * s + DROP + 3.4 * fold - 3 * gust * lee * calm;
         // אור מלמעלה ומשמאל על גליל חלק, ומעליו האור והצל של הקפלים
         var base = 0.5 + 0.4 * Math.max(0, -0.42 * c + 0.9 * s);
         pts.push({
@@ -317,7 +322,7 @@
       
       ctx.save();
       ctx.translate(CX, CY - 9);
-      ctx.rotate(-0.03 + Math.sin(t * 1.5 + seed) * 0.05 * gust);
+      ctx.rotate(-0.02 - 0.08 * gust + Math.sin(t * 2.3 + seed) * 0.015);
       ctx.scale(1.3, 1.3);
       ctx.translate(0, -9);
       LEAVES.forEach(function (leaf, n) {
@@ -343,16 +348,18 @@
       ctx.direction = "ltr";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = "900 50px 'Frank Ruhl Libre', David, serif";
+      ctx.font = "900 46px 'Frank Ruhl Libre', David, serif";
       ctx.fillStyle = "#0f2147";
       ctx.fillText(number, 0, 0);
       ctx.restore();
     }
 
     art.draw = function (t) {
-      // משבי רוח: העוצמה עולה ויורדת, והשוליים נסחפים מעט שמאלה
-      var gust = 0.62 + 0.38 * Math.sin(t * 0.7 + seed) * Math.sin(t * 0.23 + 1);
-      var sway = -(2 + 3 * Math.sin(t * 0.9 + seed)) * gust;
+      // משבי רוח מימין: העוצמה עולה ויורדת בקצב לא קבוע, בין 0 (שקט) ל-1 (משב חזק).
+      // ככל שהמשב חזק יותר, השוליים נסחפים יותר שמאלה
+      var wave = 0.55 * Math.sin(t * 0.85 + seed) + 0.3 * Math.sin(t * 1.9 + seed * 1.3 + 1.7) + 0.15 * Math.sin(t * 4.3 + seed);
+      var gust = Math.pow(0.5 + 0.5 * wave, 1.4);
+      var sway = -(1.5 + 6.5 * gust);
 
       ctx.setTransform(scale, 0, 0, scale, 0, 0);
       ctx.clearRect(0, 0, ART_W, ART_H);
@@ -377,7 +384,7 @@
       order.sort(function (a, b) { return Math.sin(a) - Math.sin(b); });
       order.forEach(drawSetting);
       drawBouquet(t, gust);
-      drawNumber(sway);
+      drawNumber(sway * 0.85);
     };
 
     art.resize();
@@ -493,7 +500,7 @@
 
   /*
    * ---------- גלילה אוטומטית אל השולחנות ----------
-   * הרבה אורחים לא גוללים למטה, ולכן אחרי 3.5 שניות הדף גולל לבד עד "השולחנות שלכם".
+   * הרבה אורחים לא גוללים למטה, ולכן אחרי 2 שניות הדף גולל לבד עד "השולחנות שלכם".
    * מי שכבר גלל בעצמו נשאר איפה שהוא, ומי שנוגע במסך באמצע הגלילה עוצר אותה.
    */
   function scrollToTablesSoon() {
