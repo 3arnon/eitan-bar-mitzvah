@@ -55,7 +55,8 @@
     inner.appendChild(el("span", "letter__frame"));
     inner.appendChild(el("p", "letter__kicker", "תזכורת"));
     inner.appendChild(el("p", "letter__to", guest.name));
-    inner.appendChild(el("p", "letter__line", "מחכים לכם בבר המצווה של"));
+    // אורח יחיד מקבל נוסח ביחיד: "לך" ו"שלך" במקום "לכם" ו"שלכם"
+    inner.appendChild(el("p", "letter__line", guest.single ? "מחכים לך בבר המצווה של" : "מחכים לכם בבר המצווה של"));
     inner.appendChild(el("p", "letter__child", E.childName));
     inner.appendChild(svgUse("divider", "divider"));
     inner.appendChild(el("p", "letter__date", longDate(E.date)));
@@ -436,8 +437,8 @@
 
   function renderTables(guest) {
     var many = guest.tables.length > 1;
-    $("tables-title").textContent = many ? "השולחנות שלכם" : "השולחן שלכם";
-    $("tables-lead").textContent = many ? "שמרנו לכם מקומות:" : "שמרנו לכם מקום:";
+    $("tables-title").textContent = many ? "השולחנות שלכם" : guest.single ? "השולחן שלך" : "השולחן שלכם";
+    $("tables-lead").textContent = many ? "שמרנו לכם מקומות:" : guest.single ? "שמרנו לך מקום:" : "שמרנו לכם מקום:";
 
     var list = $("seats");
     var arts = [];
@@ -567,6 +568,7 @@
   $("page-title").textContent = "תזכורת לבר המצווה של " + E.childName + ": " + guest.name;
   $("sample-ribbon").hidden = !window.GUESTS_SAMPLE;
   $("signature").textContent = E.signature;
+  if (guest.single) document.querySelector(".closing__line").textContent = "מחכים לך";
   fillLetter($("letter"), guest);
   renderTables(guest);
   renderStops();

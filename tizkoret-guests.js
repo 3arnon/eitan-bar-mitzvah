@@ -6,6 +6,7 @@
 window.GUESTS = {
   "ventura-yehudit-avraham": {
     "name": "יהודית ואברהם ונטורה",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -15,6 +16,7 @@ window.GUESTS = {
   },
   "ben-artzi": {
     "name": "משפחת בן ארצי",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -24,6 +26,7 @@ window.GUESTS = {
   },
   "angers": {
     "name": "ציפי ואמנון אנגרס",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -33,6 +36,7 @@ window.GUESTS = {
   },
   "slutzky": {
     "name": "משפחת סלוצקי",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -46,6 +50,7 @@ window.GUESTS = {
   },
   "malka": {
     "name": "משפחת מלכה",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -59,6 +64,7 @@ window.GUESTS = {
   },
   "ventura-amir": {
     "name": "עמיר ונטורה",
+    "single": false,
     "tables": [
       {
         "table": 6,
@@ -72,6 +78,7 @@ window.GUESTS = {
   },
   "sibony": {
     "name": "זהבית ומאור סיבוני",
+    "single": false,
     "tables": [
       {
         "table": 7,
@@ -81,6 +88,7 @@ window.GUESTS = {
   },
   "bashan-dorit-ofir": {
     "name": "דורית ואופיר בשן",
+    "single": false,
     "tables": [
       {
         "table": 7,
@@ -90,6 +98,7 @@ window.GUESTS = {
   },
   "bashan-mazal": {
     "name": "מזל בשן",
+    "single": false,
     "tables": [
       {
         "table": 7,
@@ -99,6 +108,7 @@ window.GUESTS = {
   },
   "naim": {
     "name": "משפחת נעים",
+    "single": false,
     "tables": [
       {
         "table": 7,
@@ -108,6 +118,7 @@ window.GUESTS = {
   },
   "neumann-tali-yaakov": {
     "name": "טלי ויעקב נוימן",
+    "single": false,
     "tables": [
       {
         "table": 8,
@@ -117,6 +128,7 @@ window.GUESTS = {
   },
   "ruchama-cohen": {
     "name": "רוחמה כהן",
+    "single": true,
     "tables": [
       {
         "table": 8,
@@ -126,6 +138,7 @@ window.GUESTS = {
   },
   "hadas-feldman": {
     "name": "הדס פלדמן",
+    "single": true,
     "tables": [
       {
         "table": 8,
@@ -135,6 +148,7 @@ window.GUESTS = {
   },
   "lachmi": {
     "name": "משפחת לחמי",
+    "single": false,
     "tables": [
       {
         "table": 8,
@@ -144,6 +158,7 @@ window.GUESTS = {
   },
   "neumann-ofra-shaike": {
     "name": "עופרה ושייקה נוימן",
+    "single": false,
     "tables": [
       {
         "table": 8,
@@ -153,6 +168,7 @@ window.GUESTS = {
   },
   "chilik": {
     "name": "חיליק וידלץ",
+    "single": true,
     "tables": [
       {
         "table": 8,
@@ -162,6 +178,7 @@ window.GUESTS = {
   },
   "neumann-yaela-ran": {
     "name": "יעלה ורן נוימן",
+    "single": false,
     "tables": [
       {
         "table": 5,
@@ -171,6 +188,7 @@ window.GUESTS = {
   },
   "neumann-guy-einav": {
     "name": "גיא ועינב נוימן",
+    "single": false,
     "tables": [
       {
         "table": 5,
@@ -180,6 +198,7 @@ window.GUESTS = {
   },
   "azulay": {
     "name": "משפחת אזולאי",
+    "single": false,
     "tables": [
       {
         "table": 5,
@@ -189,6 +208,7 @@ window.GUESTS = {
   },
   "asher": {
     "name": "שגיא ואריאל אשר",
+    "single": false,
     "tables": [
       {
         "table": 2,
@@ -198,6 +218,7 @@ window.GUESTS = {
   },
   "hadar": {
     "name": "יוחאי ונוי הדר",
+    "single": false,
     "tables": [
       {
         "table": 2,
@@ -207,6 +228,7 @@ window.GUESTS = {
   },
   "avi-ovadia": {
     "name": "אבי עובדיה",
+    "single": true,
     "tables": [
       {
         "table": 2,
@@ -216,6 +238,7 @@ window.GUESTS = {
   },
   "grossman": {
     "name": "שירי ומושיק גרוסמן",
+    "single": false,
     "tables": [
       {
         "table": 2,
@@ -225,6 +248,7 @@ window.GUESTS = {
   },
   "amnon-nona": {
     "name": "אמנון נונה",
+    "single": true,
     "tables": [
       {
         "table": 2,
@@ -234,6 +258,7 @@ window.GUESTS = {
   },
   "ventura-hadar-arnon": {
     "name": "הדר וארנון ונטורה",
+    "single": false,
     "tables": [
       {
         "table": 2,
@@ -247,6 +272,7 @@ window.GUESTS = {
   },
   "atia": {
     "name": "עדי ואייל אטיה",
+    "single": false,
     "tables": [
       {
         "table": 1,
@@ -256,6 +282,7 @@ window.GUESTS = {
   },
   "karin-yona-sagi": {
     "name": "קארין יונה ושגיא",
+    "single": false,
     "tables": [
       {
         "table": 1,
@@ -265,6 +292,7 @@ window.GUESTS = {
   },
   "newman-natali-avidor": {
     "name": "משפחת ניומן",
+    "single": false,
     "tables": [
       {
         "table": 1,
@@ -278,6 +306,7 @@ window.GUESTS = {
   },
   "gilad-shlomit": {
     "name": "גלעד ושלומית",
+    "single": false,
     "tables": [
       {
         "table": 1,
@@ -287,6 +316,7 @@ window.GUESTS = {
   },
   "ben-yosef": {
     "name": "שני ויניר בן יוסף",
+    "single": false,
     "tables": [
       {
         "table": 1,
@@ -296,6 +326,7 @@ window.GUESTS = {
   },
   "sharona-shabat": {
     "name": "שרונה שבת",
+    "single": true,
     "tables": [
       {
         "table": 1,
@@ -305,6 +336,7 @@ window.GUESTS = {
   },
   "amira": {
     "name": "משפחת עמירה",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -318,6 +350,7 @@ window.GUESTS = {
   },
   "shalom": {
     "name": "שני וירון שלום",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -327,6 +360,7 @@ window.GUESTS = {
   },
   "hadad": {
     "name": "משפחת חדד",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -340,6 +374,7 @@ window.GUESTS = {
   },
   "werman": {
     "name": "משפחת ורמן",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -353,6 +388,7 @@ window.GUESTS = {
   },
   "cohen-einav-asaf": {
     "name": "עינב ואסף כהן",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -366,6 +402,7 @@ window.GUESTS = {
   },
   "malul": {
     "name": "משפחת מלול",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -379,6 +416,7 @@ window.GUESTS = {
   },
   "levi": {
     "name": "משפחת לוי",
+    "single": false,
     "tables": [
       {
         "table": 3,
@@ -392,6 +430,7 @@ window.GUESTS = {
   },
   "elia-pragan": {
     "name": "אליה פרגן",
+    "single": true,
     "tables": [
       {
         "table": 9,
@@ -401,6 +440,7 @@ window.GUESTS = {
   },
   "elior-worku": {
     "name": "אליאור וורקו",
+    "single": true,
     "tables": [
       {
         "table": 9,
@@ -410,6 +450,7 @@ window.GUESTS = {
   },
   "ela-levi": {
     "name": "אלה לוי",
+    "single": true,
     "tables": [
       {
         "table": 9,
