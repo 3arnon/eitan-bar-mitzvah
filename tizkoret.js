@@ -72,22 +72,23 @@
 
   var ART_W = 200;
   var ART_H = 186;
-  var CX = 100;   // מרכז משטח השולחן
-  var CY = 50;
-  var RX = 88;    // חצי רוחב המשטח
-  var RY = 36;    // חצי גובה המשטח, כפי שהוא נראה באלכסון
-  var DROP = 80;  // אורך המפה מהמשטח עד הרצפה
-  var STRIPS = 64;
+  var CX = 100;     // מרכז משטח השולחן
+  var CY = 54;
+  var RX = 78;      // חצי רוחב המשטח
+  var RY = 30;      // חצי גובה המשטח, כפי שהוא נראה באלכסון
+  var DROP = 72;    // אורך המפה מהמשטח עד הרצפה
+  var FLARE = 1.15; // המפה מתרחבת כלפי מטה, כמו בד שנופל מעל שולחן
+  var STRIPS = 96;
   var SEATS = 10;
 
   function mix(a, b, k) {
     return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
   }
 
-  // גוון הבד לפי כמות האור: מכחול כהה מאוד, דרך כחול ההזמנה, עד כחול בהיר
-  var CLOTH_DARK = [7, 19, 46];
-  var CLOTH_MID = [26, 56, 114];
-  var CLOTH_LIGHT = [74, 122, 194];
+  // גוון הבד לפי כמות האור: מפה לבנה, עם צל רך בגוון כחלחל בתוך הקפלים
+  var CLOTH_DARK = [158, 172, 198];
+  var CLOTH_MID = [226, 231, 240];
+  var CLOTH_LIGHT = [255, 255, 255];
 
   function clothColor(light) {
     var k = Math.max(0, Math.min(1, light));
@@ -123,10 +124,15 @@
       ctx.moveTo(a[0], a[1]);
       ctx.lineTo(b[0], b[1]);
       ctx.lineWidth = width;
+      ctx.lineCap = "round";
       ctx.strokeStyle = color;
       ctx.stroke();
     }
 
+    /*
+     * המפה: חלקה ליד שפת השולחן, ומתחתיה קפלים רכים שמעמיקים ומתרחבים עד השוליים.
+     * כל רצועה צרה נצבעת במעבר צבע מלמעלה למטה, כך שהקפלים "נולדים" בהדרגה ולא נראים כמו פסים.
+     */
     function drawSkirt(t, gust, sway) {
       var pts = [];
       var i;
@@ -134,23 +140,25 @@
         var th = Math.PI * i / STRIPS; // 0 בצד ימין, חצי פאי מול המסתכל, פאי בצד שמאל
         var c = Math.cos(th);
         var s = Math.sin(th);
-        // שני גלים בקצב שונה, כדי שהקפלים לא ייראו כמו סרגל
-        var a1 = th * 13 - t * 2.4 + seed;
-        var a2 = th * 7 + t * 1.3 + seed * 2;
-        var fold = (Math.sin(a1) + 0.5 * Math.sin(a2)) / 1.5;
-        var slope = (Math.cos(a1) + 0.3 * Math.cos(a2)) / 1.3;
-        var r = 1.05 + 0.075 * fold * gust;
+        // הקפלים נשארים במקומם ומתנדנדים ברוח, ועוד אדווה קטנה שרצה לאורך השוליים
+        var a1 = th * 10 + seed + 0.9 * Math.sin(t * 1.3 + seed) * gust + 0.35 * Math.sin(t * 2.1 + th * 2);
+        var a2 = th * 17 + seed * 2 + t * 0.9;
+        // בקצוות הצדדיים הקפלים נרגעים, כדי שהצללית של המפה תישאר רכה
+        var calm = Math.pow(s, 0.6);
+        var fold = calm * (Math.sin(a1) + 0.25 * Math.sin(a2)) / 1.25;
+        var slope = calm * (Math.cos(a1) + 0.4 * Math.cos(a2)) / 1.4;
+        var r = FLARE + 0.085 * fold;
         var tx = CX + RX * c;
         var ty = CY + RY * s;
-        var hx = CX + RX * r * c + sway * (0.35 + 0.65 * s);
-        var hy = CY + RY * r * s + DROP - 2 + 3.2 * slope * gust;
-        // אור מלמעלה ומשמאל, ועוד אור וצל של הקפלים
-        var lambert = Math.max(0, -0.45 * c + 0.89 * s);
+        var hx = CX + RX * r * c + sway * (0.3 + 0.7 * s);
+        var hy = CY + RY * r * s + DROP + 3.4 * fold;
+        // אור מלמעלה ומשמאל על גליל חלק, ומעליו האור והצל של הקפלים
+        var base = 0.5 + 0.4 * Math.max(0, -0.42 * c + 0.9 * s);
         pts.push({
           tx: tx, ty: ty, hx: hx, hy: hy,
-          // נקודת האמצע של הבד: הוא נופל ישר מהשולחן ורק אז נסחף ברוח
-          mx: tx + (hx - tx) * 0.2, my: ty + DROP * 0.55,
-          light: 0.2 + 0.52 * lambert + 0.34 * slope * (0.5 + 0.5 * gust)
+          mx: tx + (hx - tx) * 0.32, my: ty + (hy - ty) * 0.5,
+          base: base,
+          deep: base + 0.42 * slope + 0.14 * fold
         });
       }
 
@@ -158,21 +166,27 @@
       for (i = 0; i < STRIPS; i++) {
         var p = pts[i];
         var q = pts[i + 1];
-        var color = clothColor((p.light + q.light) / 2);
+        var base2 = (p.base + q.base) / 2;
+        var deep2 = (p.deep + q.deep) / 2;
+        var paint = ctx.createLinearGradient(p.tx, p.ty, p.hx, p.hy);
+        paint.addColorStop(0, clothColor(base2 - 0.16));
+        paint.addColorStop(0.16, clothColor(base2 + (deep2 - base2) * 0.15));
+        paint.addColorStop(0.6, clothColor(base2 + (deep2 - base2) * 0.75));
+        paint.addColorStop(1, clothColor(deep2));
         ctx.beginPath();
         ctx.moveTo(p.tx, p.ty);
         ctx.quadraticCurveTo(p.mx, p.my, p.hx, p.hy);
         ctx.lineTo(q.hx, q.hy);
         ctx.quadraticCurveTo(q.mx, q.my, q.tx, q.ty);
         ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 0.7;
+        ctx.fillStyle = paint;
+        ctx.strokeStyle = paint;
+        ctx.lineWidth = 0.6;
         ctx.fill();
         ctx.stroke();
       }
 
-      // הבד מתכהה לקראת הרצפה
+      // הבד מתכהה מעט לקראת הרצפה
       var first = pts[0];
       var last = pts[STRIPS];
       ctx.beginPath();
@@ -181,179 +195,178 @@
       ctx.quadraticCurveTo(last.mx, last.my, last.hx, last.hy);
       for (i = STRIPS - 1; i >= 0; i--) ctx.lineTo(pts[i].hx, pts[i].hy);
       ctx.quadraticCurveTo(first.mx, first.my, first.tx, first.ty);
-      var fade = ctx.createLinearGradient(0, CY + RY * 0.4, 0, CY + RY + DROP);
-      fade.addColorStop(0, "rgba(6, 16, 40, 0)");
-      fade.addColorStop(1, "rgba(6, 16, 40, 0.34)");
+      var fade = ctx.createLinearGradient(0, CY + RY, 0, CY + RY + DROP);
+      fade.addColorStop(0, "rgba(70, 92, 136, 0)");
+      fade.addColorStop(1, "rgba(70, 92, 136, 0.2)");
       ctx.fillStyle = fade;
       ctx.fill();
 
       // פס זהב דק לאורך השוליים
-      ctx.beginPath();
-      for (i = 2; i <= STRIPS - 2; i++) {
-        var h = pts[i];
-        var gx = h.hx + (h.mx - h.hx) * 0.14;
-        var gy = h.hy + (h.my - h.hy) * 0.14;
-        if (i > 2) ctx.lineTo(gx, gy);
-        else ctx.moveTo(gx, gy);
-      }
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = "rgba(222, 194, 132, 0.92)";
-      ctx.stroke();
+      [[0.08, 1.5, 1]].forEach(function (band) {
+        ctx.beginPath();
+        for (i = 0; i <= STRIPS; i++) {
+          var h = pts[i];
+          var gx = h.hx + (h.mx - h.hx) * band[0] * 2;
+          var gy = h.hy + (h.my - h.hy) * band[0] * 2;
+          if (i) ctx.lineTo(gx, gy);
+          else ctx.moveTo(gx, gy);
+        }
+        ctx.lineWidth = band[1];
+        ctx.strokeStyle = "rgba(201, 164, 90, " + band[2] + ")";
+        ctx.stroke();
+      });
     }
 
     function drawTop() {
-      var g = ctx.createRadialGradient(CX - 22, CY - 10, 4, CX, CY, RX * 1.05);
-      g.addColorStop(0, "#4675bb");
-      g.addColorStop(0.55, "#234a8c");
-      g.addColorStop(1, "#15305f");
+      var g = ctx.createRadialGradient(CX - 20, CY - 9, 3, CX, CY, RX * 1.05);
+      g.addColorStop(0, "#ffffff");
+      g.addColorStop(0.6, "#f3f5f9");
+      g.addColorStop(1, "#dde3ee");
       oval(ctx, CX, CY, RX, RY);
       ctx.fillStyle = g;
       ctx.fill();
       // אור על שפת השולחן, במקום שבו המפה מתקפלת כלפי מטה
       ctx.beginPath();
-      ctx.ellipse(CX, CY, RX - 0.4, RY - 0.4, 0, 0.12, Math.PI - 0.12);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(176, 204, 244, 0.6)";
+      ctx.ellipse(CX, CY, RX - 0.3, RY - 0.3, 0, 0.06, Math.PI - 0.06);
+      ctx.lineWidth = 1.3;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.95)";
       ctx.stroke();
     }
 
-    // מקום ישיבה אחד: צלחת של 26 ס"מ, מזלג משמאל, סכין מימין, וכוס מעל הסכין
+    // מקום ישיבה אחד: צלחת לבנה עם שפת זהב, מזלג משמאל וסכין מימין, בזהב
     function drawSetting(alpha) {
       var ca = Math.cos(alpha);
       var sa = Math.sin(alpha);
-      var pu = 0.77 * ca;
-      var pv = 0.77 * sa;
+      var pu = 0.75 * ca;
+      var pv = 0.75 * sa;
       // d מצביע אל מרכז השולחן, l הוא צד שמאל של מי שיושב
       var du = -ca, dv = -sa;
       var lu = -sa, lv = ca;
-      var silver = "#e3e9f3";
+      var silver = "#bf9a4e";
 
-      var fork = [pu + lu * 0.2, pv + lv * 0.2];
-      line(onTop(fork[0] - du * 0.11, fork[1] - dv * 0.11), onTop(fork[0] + du * 0.11, fork[1] + dv * 0.11), 0.9, silver);
-      line(onTop(fork[0] + du * 0.035, fork[1] + dv * 0.035), onTop(fork[0] + du * 0.11, fork[1] + dv * 0.11), 2, silver);
+      var fork = [pu + lu * 0.215, pv + lv * 0.215];
+      line(onTop(fork[0] - du * 0.1, fork[1] - dv * 0.1), onTop(fork[0] + du * 0.1, fork[1] + dv * 0.1), 0.7, silver);
+      line(onTop(fork[0] + du * 0.04, fork[1] + dv * 0.04), onTop(fork[0] + du * 0.1, fork[1] + dv * 0.1), 1.6, silver);
 
-      var knife = [pu - lu * 0.2, pv - lv * 0.2];
-      line(onTop(knife[0] - du * 0.12, knife[1] - dv * 0.12), onTop(knife[0] + du * 0.12, knife[1] + dv * 0.12), 0.9, silver);
-      line(onTop(knife[0] - du * 0.005, knife[1] - dv * 0.005), onTop(knife[0] + du * 0.12, knife[1] + dv * 0.12), 1.7, silver);
-
-      var glass = onTop(pu + du * 0.2 - lu * 0.15, pv + dv * 0.2 - lv * 0.15);
-      oval(ctx, glass[0], glass[1], RX * 0.042, RY * 0.042);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
-      ctx.fill();
-      ctx.lineWidth = 0.6;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
-      ctx.stroke();
+      var knife = [pu - lu * 0.215, pv - lv * 0.215];
+      line(onTop(knife[0] - du * 0.1, knife[1] - dv * 0.1), onTop(knife[0] + du * 0.1, knife[1] + dv * 0.1), 0.7, silver);
+      line(onTop(knife[0], knife[1]), onTop(knife[0] + du * 0.1, knife[1] + dv * 0.1), 1.3, silver);
 
       var plate = onTop(pu, pv);
-      oval(ctx, plate[0] - 0.7, plate[1] + 1.3, RX * 0.165, RY * 0.165);
-      ctx.fillStyle = "rgba(5, 14, 36, 0.38)";
+      oval(ctx, plate[0] - 0.6, plate[1] + 1.4, RX * 0.172, RY * 0.172);
+      ctx.fillStyle = "rgba(52, 72, 116, 0.3)";
       ctx.fill();
-      oval(ctx, plate[0], plate[1], RX * 0.16, RY * 0.16);
-      ctx.fillStyle = "#fdfcf8";
+      oval(ctx, plate[0], plate[1], RX * 0.165, RY * 0.165);
+      ctx.fillStyle = "#ffffff";
       ctx.fill();
-      ctx.lineWidth = 0.55;
-      ctx.strokeStyle = "rgba(190, 150, 70, 0.75)";
+      ctx.lineWidth = 0.9;
+      ctx.strokeStyle = "#c9a45a";
       ctx.stroke();
-      oval(ctx, plate[0], plate[1] + 0.25, RX * 0.1, RY * 0.1);
-      ctx.strokeStyle = "rgba(150, 162, 186, 0.7)";
+      oval(ctx, plate[0], plate[1] + 0.2, RX * 0.095, RY * 0.095);
+      ctx.lineWidth = 0.45;
+      ctx.strokeStyle = "rgba(120, 138, 172, 0.55)";
       ctx.stroke();
     }
 
-    function flower(x, y, r) {
-      for (var k = 0; k < 5; k++) {
-        var a = k * Math.PI * 2 / 5 + x;
+    // פרחי הזר, מהרחוק אל הקרוב: מיקום ביחס למרכז הזר, ורדיוס
+    var BLOOMS = [
+      [0, -14.5, 4.6], [-6.5, -11, 4.8], [6.5, -11.5, 4.8],
+      [-11, -4, 4.6], [11, -4.5, 4.6], [0, -6.5, 5.6],
+      [-12, 3.5, 4.2], [12, 3, 4.2], [-6, 1.5, 5.2], [6, 1, 5.2], [0, 6, 5]
+    ];
+    // עלים שמציצים מהצדדים ומלמטה: זווית ואורך
+    var LEAVES = [[0.15, 19], [Math.PI - 0.15, 19], [-0.5, 17], [Math.PI + 0.5, 17], [0.75, 15], [Math.PI - 0.75, 15]];
+
+    function bloom(x, y, r, withHeart) {
+      var g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.35, r * 0.1, x, y, r);
+      g.addColorStop(0, "#ffffff");
+      g.addColorStop(0.7, "#f6f8fb");
+      g.addColorStop(1, "#cdd7e8");
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+      ctx.lineWidth = 0.35;
+      ctx.strokeStyle = "rgba(84, 108, 150, 0.5)";
+      ctx.stroke();
+      if (withHeart) {
         ctx.beginPath();
-        ctx.arc(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5, r * 0.56, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
+        ctx.arc(x, y, r * 0.24, 0, Math.PI * 2);
+        ctx.fillStyle = "#e7c56f";
         ctx.fill();
-        ctx.lineWidth = 0.35;
-        ctx.strokeStyle = "rgba(170, 184, 206, 0.8)";
-        ctx.stroke();
       }
-      ctx.beginPath();
-      ctx.arc(x, y, r * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = "#ecd28a";
-      ctx.fill();
     }
 
-    var LEAVES = [[-2.6, 12, "#3b6646"], [-2.0, 10, "#4f7d55"], [-1.15, 11, "#3b6646"], [-0.5, 12, "#4f7d55"], [-1.57, 14, "#467350"]];
-    var FLOWERS = [[-9, -1.5, 2.9], [9.5, -2, 2.9], [-5.5, -10.5, 3.1], [5.5, -11, 3.1], [0, -13.5, 3.3],
-      [-6.5, -5.5, 3.7], [6.5, -6, 3.7], [-2.5, -2.5, 3.5], [3.5, -2, 3.4], [0, -8.5, 4.3]];
-
-    // זר לבן קטן באגרטל נמוך, שנע מעט ברוח
+    // זר לבן עגול עם עלים ירוקים, באגרטל זהב נמוך. הוא נע מעט ברוח
     function drawBouquet(t, gust) {
-      oval(ctx, CX - 3, CY + 2, 13, 5);
-      ctx.fillStyle = "rgba(5, 14, 36, 0.36)";
+      oval(ctx, CX - 4, CY + 2.5, 16, 5.5);
+      ctx.fillStyle = "rgba(52, 72, 116, 0.26)";
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(CX - 3.4, CY - 8);
-      ctx.lineTo(CX + 3.4, CY - 8);
-      ctx.lineTo(CX + 2.6, CY);
-      ctx.quadraticCurveTo(CX, CY + 1.6, CX - 2.6, CY);
+      ctx.moveTo(CX - 4.2, CY - 9);
+      ctx.lineTo(CX + 4.2, CY - 9);
+      ctx.lineTo(CX + 3, CY + 0.4);
+      ctx.quadraticCurveTo(CX, CY + 2, CX - 3, CY + 0.4);
       ctx.closePath();
-      ctx.fillStyle = "#eef2f8";
+      var glaze = ctx.createLinearGradient(CX - 4, 0, CX + 4, 0);
+      glaze.addColorStop(0, "#ecd69a");
+      glaze.addColorStop(1, "#b98f3f");
+      ctx.fillStyle = glaze;
       ctx.fill();
-      ctx.lineWidth = 0.4;
-      ctx.strokeStyle = "rgba(150, 165, 190, 0.9)";
-      ctx.stroke();
-
+      
       ctx.save();
-      ctx.translate(CX, CY - 8);
-      ctx.rotate(-0.04 + Math.sin(t * 1.5 + seed) * 0.06 * gust);
-      ctx.scale(1.2, 1.2);
-      LEAVES.forEach(function (leaf) {
+      ctx.translate(CX, CY - 9);
+      ctx.rotate(-0.03 + Math.sin(t * 1.5 + seed) * 0.05 * gust);
+      ctx.scale(1.3, 1.3);
+      ctx.translate(0, -9);
+      LEAVES.forEach(function (leaf, n) {
         ctx.save();
-        ctx.rotate(leaf[0] + Math.PI / 2);
+        ctx.rotate(leaf[0]);
         ctx.beginPath();
-        ctx.ellipse(0, -leaf[1] * 0.55, 2.6, leaf[1] * 0.55, 0, 0, Math.PI * 2);
-        ctx.fillStyle = leaf[2];
+        ctx.ellipse(leaf[1] * 0.6, 0, leaf[1] * 0.42, 2.9, 0, 0, Math.PI * 2);
+        ctx.fillStyle = n % 2 ? "#8fae93" : "#5f8a6a";
         ctx.fill();
         ctx.restore();
       });
-      FLOWERS.forEach(function (f) {
-        flower(f[0], f[1], f[2]);
+      BLOOMS.forEach(function (b, n) {
+        bloom(b[0], b[1], b[2], n % 2 === 1 || n === BLOOMS.length - 1);
       });
       ctx.restore();
     }
 
-    // מספר השולחן, רקום בזהב על המפה. הוא נוטה מעט יחד עם הבד
+    // מספר השולחן, בכחול ההזמנה על המפה הלבנה. הוא נוטה מעט יחד עם הבד
     function drawNumber(sway) {
       ctx.save();
-      ctx.translate(CX + sway * 0.4, CY + RY + DROP * 0.5 + 2);
+      ctx.translate(CX + sway * 0.4, CY + RY + DROP * 0.5 + 4);
       ctx.transform(1, 0, sway / DROP * 0.55, 1, 0, 0);
       ctx.direction = "ltr";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = "900 52px 'Frank Ruhl Libre', David, serif";
-      ctx.fillStyle = "rgba(3, 10, 28, 0.6)";
-      ctx.fillText(number, 0.9, 1.6);
-      var gold = ctx.createLinearGradient(0, -24, 0, 24);
-      gold.addColorStop(0, "#fbe9b4");
-      gold.addColorStop(0.55, "#e2bf74");
-      gold.addColorStop(1, "#c79a45");
-      ctx.fillStyle = gold;
+      ctx.font = "900 50px 'Frank Ruhl Libre', David, serif";
+      ctx.fillStyle = "#0f2147";
       ctx.fillText(number, 0, 0);
       ctx.restore();
     }
 
     art.draw = function (t) {
-      // משבי רוח: העוצמה עולה ויורדת, והשוליים נסחפים שמאלה
+      // משבי רוח: העוצמה עולה ויורדת, והשוליים נסחפים מעט שמאלה
       var gust = 0.62 + 0.38 * Math.sin(t * 0.7 + seed) * Math.sin(t * 0.23 + 1);
-      var sway = -(3 + 3.5 * Math.sin(t * 0.9 + seed)) * gust;
+      var sway = -(2 + 3 * Math.sin(t * 0.9 + seed)) * gust;
 
       ctx.setTransform(scale, 0, 0, scale, 0, 0);
       ctx.clearRect(0, 0, ART_W, ART_H);
 
-      // צל על הרצפה
-      var shadow = ctx.createRadialGradient(CX - 4, CY + DROP + 6, 30, CX - 4, CY + DROP + 6, 98);
-      shadow.addColorStop(0, "rgba(8, 21, 48, 0.4)");
-      shadow.addColorStop(1, "rgba(8, 21, 48, 0)");
+      // צל רך על הרצפה
+      var floorY = CY + DROP + RY * 0.55;
+      var shadow = ctx.createRadialGradient(CX - 3, floorY, 40, CX - 3, floorY, 100);
+      shadow.addColorStop(0, "rgba(2, 8, 24, 0.55)");
+      shadow.addColorStop(1, "rgba(2, 8, 24, 0)");
       ctx.save();
-      ctx.translate(0, (CY + DROP + 6) * (1 - 0.42));
-      ctx.scale(1, 0.42);
+      ctx.translate(0, floorY * (1 - 0.4));
+      ctx.scale(1, 0.4);
       ctx.fillStyle = shadow;
-      ctx.fillRect(0, 0, ART_W, ART_H * 2.4);
+      ctx.fillRect(0, 0, ART_W, ART_H * 2.5);
       ctx.restore();
 
       drawSkirt(t, gust, sway);

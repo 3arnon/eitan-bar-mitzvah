@@ -155,15 +155,21 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px 8px 16px;
-  border: 1px solid var(--gold-soft);
+  padding: 16px 16px 12px 18px;
   border-radius: 16px;
-  background: var(--paper);
-  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px var(--line);
+  /* כרטיס כחול כהה עם מסגרת זהב דקה, כמו כרטיס הכניסה שבדף ההזמנה. עליו המפה הלבנה בולטת */
+  background:
+    radial-gradient(circle at 100% 0, rgba(63, 100, 136, 0.5), transparent 60%),
+    var(--navy);
+  box-shadow:
+    inset 0 0 0 5px var(--navy),
+    inset 0 0 0 6px rgba(214, 189, 139, 0.7),
+    0 16px 30px -18px rgba(8, 21, 48, 0.75);
+  color: #fff;
   text-align: start;
 }
 
-/* שולחן עגול עם מפה כחולה שמתנופפת ברוח. הציור עצמו נעשה ב-tizkoret.js */
+/* שולחן עגול עם מפה לבנה שמתנופפת ברוח. הציור עצמו נעשה ב-tizkoret.js */
 .seat__art {
   display: block;
   flex: none;
@@ -176,7 +182,7 @@
 }
 
 .seat__kicker {
-  color: var(--gold-ink);
+  color: var(--gold-soft);
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.2;
@@ -184,7 +190,7 @@
 
 .seat__names {
   margin-top: 2px;
-  color: var(--navy);
+  color: #fff;
   font-family: var(--serif);
   font-size: 1.42rem;
   font-weight: 700;
