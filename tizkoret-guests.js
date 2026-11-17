@@ -274,6 +274,16 @@ window.GUESTS = {
       }
     ]
   },
+  "itai-levi": {
+    "name": "איתי לוי",
+    "single": true,
+    "tables": [
+      {
+        "table": 2,
+        "names": "איתי"
+      }
+    ]
+  },
   "atia": {
     "name": "עדי ואייל אטיה",
     "single": false,
