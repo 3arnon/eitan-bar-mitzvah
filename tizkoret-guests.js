@@ -266,7 +266,11 @@ window.GUESTS = {
       },
       {
         "table": 9,
-        "names": "איתן, ירדן ותמר"
+        "names": "ירדן ותמר"
+      },
+      {
+        "table": 10,
+        "names": "איתן"
       }
     ]
   },
@@ -299,7 +303,7 @@ window.GUESTS = {
         "names": "נטלי, אבידור ועומר"
       },
       {
-        "table": 9,
+        "table": 10,
         "names": "אביתר"
       }
     ]
@@ -344,17 +348,21 @@ window.GUESTS = {
       },
       {
         "table": 9,
-        "names": "תהל, ינון ואליה"
+        "names": "תהל, אליה וינון"
       }
     ]
   },
   "shalom": {
-    "name": "שני וירון שלום",
+    "name": "משפחת שלום",
     "single": false,
     "tables": [
       {
         "table": 3,
-        "names": "שני וירון"
+        "names": "שני"
+      },
+      {
+        "table": 9,
+        "names": "איתי, נועם ואלון"
       }
     ]
   },
@@ -367,7 +375,7 @@ window.GUESTS = {
         "names": "דורין"
       },
       {
-        "table": 9,
+        "table": 10,
         "names": "קורן"
       }
     ]
@@ -381,7 +389,7 @@ window.GUESTS = {
         "names": "סליביה"
       },
       {
-        "table": 9,
+        "table": 10,
         "names": "שקד"
       }
     ]
@@ -410,6 +418,10 @@ window.GUESTS = {
       },
       {
         "table": 9,
+        "names": "אורי"
+      },
+      {
+        "table": 10,
         "names": "עילאי ואיתי"
       }
     ]
@@ -423,28 +435,8 @@ window.GUESTS = {
         "names": "חן, איתי ואורי"
       },
       {
-        "table": 9,
+        "table": 10,
         "names": "עידו ועומר"
-      }
-    ]
-  },
-  "elia-pragan": {
-    "name": "אליה פרגן",
-    "single": true,
-    "tables": [
-      {
-        "table": 9,
-        "names": "אליה"
-      }
-    ]
-  },
-  "elior-worku": {
-    "name": "אליאור וורקו",
-    "single": true,
-    "tables": [
-      {
-        "table": 9,
-        "names": "אליאור"
       }
     ]
   },
@@ -455,6 +447,26 @@ window.GUESTS = {
       {
         "table": 9,
         "names": "אלה"
+      }
+    ]
+  },
+  "elia-pragan": {
+    "name": "אליה פרגן",
+    "single": true,
+    "tables": [
+      {
+        "table": 10,
+        "names": "אליה"
+      }
+    ]
+  },
+  "elior-worku": {
+    "name": "אליאור וורקו",
+    "single": true,
+    "tables": [
+      {
+        "table": 10,
+        "names": "אליאור"
       }
     ]
   }
