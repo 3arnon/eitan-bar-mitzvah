@@ -44,7 +44,7 @@ window.GUESTS = {
       },
       {
         "table": 4,
-        "names": "אלון, יואב, אביגיל, עמית ואביב"
+        "names": "אלון, יואב, אביגיל ועמית"
       }
     ]
   },
@@ -62,17 +62,13 @@ window.GUESTS = {
       }
     ]
   },
-  "ventura-amir": {
-    "name": "עמיר ונטורה",
+  "grossman-sara-leizer": {
+    "name": "שרה ולייזר גרוסמן",
     "single": false,
     "tables": [
       {
         "table": 6,
-        "names": "עמיר"
-      },
-      {
-        "table": 4,
-        "names": "ליאל, אמילי ודניאל"
+        "names": "שרה ולייזר"
       }
     ]
   },
@@ -203,6 +199,16 @@ window.GUESTS = {
       {
         "table": 5,
         "names": "ורד, איקו וארבל"
+      }
+    ]
+  },
+  "ventura-amir": {
+    "name": "עמיר ונטורה",
+    "single": false,
+    "tables": [
+      {
+        "table": 4,
+        "names": "עמיר, ליאל, אמילי ודניאל"
       }
     ]
   },
